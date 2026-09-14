@@ -623,7 +623,16 @@
                 >
 
             </div>
+<div class="project-card">
 
+            <div class="project-image">
+
+                <img
+                    src="/images/class-diagram1.png"
+                    alt="Diagramme de classes UML réalisé avec StarUML"
+                >
+
+            </div>
 
             <div class="project-content">
 
