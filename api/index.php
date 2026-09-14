@@ -653,7 +653,7 @@
             <div class="project-card">
 
                 <img
-                    src="/images/ClassDiagram.png"
+                    src="/images/class-diagram.png"
                     alt="TD 1 - Diagramme UML"
                     class="project-image"
                 >
