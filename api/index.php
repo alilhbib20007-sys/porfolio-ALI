@@ -1,13 +1,14 @@
+<?php
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Ali El Habib — Développeur Digital</title>
+    <title>Ali EL Habib — Développeur Digital</title>
 
-    <meta name="description"
-          content="Portfolio professionnel de Ali El Habib, développeur digital spécialisé dans le développement web et les solutions numériques.">
+    <meta name="description" content="Portfolio de Ali EL Habib, développeur digital spécialisé dans le développement web.">
 
     <style>
         * {
@@ -22,64 +23,39 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background: #050816;
-            color: #ffffff;
-            overflow-x: hidden;
+            background: #07111f;
+            color: #f5f7fa;
+            line-height: 1.6;
         }
 
         a {
-            text-decoration: none;
             color: inherit;
+            text-decoration: none;
         }
 
-        /* =========================
-           BACKGROUND
-        ========================= */
-
-        body::before {
-            content: "";
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            background: #5b5bf7;
-            filter: blur(180px);
-            opacity: .15;
-            top: -200px;
-            left: -200px;
-            z-index: -2;
+        .container {
+            width: min(1150px, 90%);
+            margin: auto;
         }
 
-        body::after {
-            content: "";
-            position: fixed;
-            width: 500px;
-            height: 500px;
-            background: #00d9ff;
-            filter: blur(180px);
-            opacity: .12;
-            right: -150px;
-            bottom: -150px;
-            z-index: -2;
-        }
-
-        /* =========================
-           NAVBAR
-        ========================= */
+        /* NAVBAR */
 
         nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
+            z-index: 1000;
+            background: rgba(7, 17, 31, 0.88);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .nav-content {
             height: 75px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 8%;
-            background: rgba(5, 8, 22, .75);
-            backdrop-filter: blur(18px);
-            border-bottom: 1px solid rgba(255,255,255,.08);
-            z-index: 1000;
+            align-items: center;
         }
 
         .logo {
@@ -89,7 +65,7 @@
         }
 
         .logo span {
-            color: #6c63ff;
+            color: #4da3ff;
         }
 
         .nav-links {
@@ -99,61 +75,56 @@
         }
 
         .nav-links a {
-            color: #b8bdd3;
+            color: #b9c5d4;
             font-size: 14px;
-            transition: .3s;
+            transition: 0.3s;
         }
 
         .nav-links a:hover {
-            color: #ffffff;
+            color: #4da3ff;
         }
 
-        /* =========================
-           HERO
-        ========================= */
+        /* HERO */
 
         .hero {
             min-height: 100vh;
-            padding: 140px 8% 80px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 60px;
+            padding-top: 75px;
+            background:
+                radial-gradient(circle at 80% 20%, rgba(77,163,255,0.16), transparent 35%),
+                radial-gradient(circle at 20% 80%, rgba(120,80,255,0.12), transparent 35%);
         }
 
         .hero-content {
-            max-width: 650px;
+            max-width: 800px;
         }
 
-        .badge {
+        .tag {
             display: inline-block;
-            padding: 9px 16px;
-            border: 1px solid rgba(108,99,255,.4);
-            border-radius: 50px;
-            background: rgba(108,99,255,.08);
-            color: #aaa5ff;
+            padding: 8px 15px;
+            border: 1px solid rgba(77,163,255,0.35);
+            border-radius: 30px;
+            color: #4da3ff;
+            background: rgba(77,163,255,0.08);
             font-size: 13px;
             margin-bottom: 25px;
         }
 
         .hero h1 {
-            font-size: clamp(48px, 7vw, 86px);
-            line-height: .95;
+            font-size: clamp(48px, 8vw, 85px);
+            line-height: 1;
             margin-bottom: 25px;
-            letter-spacing: -4px;
         }
 
         .hero h1 span {
-            background: linear-gradient(90deg, #6c63ff, #00d9ff);
-            -webkit-background-clip: text;
-            color: transparent;
+            color: #4da3ff;
         }
 
         .hero p {
-            color: #aeb4c8;
-            font-size: 18px;
-            line-height: 1.8;
-            max-width: 600px;
+            color: #aeb9c8;
+            font-size: 19px;
+            max-width: 650px;
             margin-bottom: 35px;
         }
 
@@ -164,321 +135,259 @@
         }
 
         .btn {
-            padding: 14px 23px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: .3s;
+            padding: 13px 22px;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: 0.3s;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #6c63ff, #5148dc);
-            box-shadow: 0 10px 35px rgba(108,99,255,.25);
+            background: #4da3ff;
+            color: #06101d;
         }
 
         .btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(108,99,255,.4);
         }
 
         .btn-secondary {
-            border: 1px solid rgba(255,255,255,.15);
-            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
         }
 
         .btn-secondary:hover {
-            background: rgba(255,255,255,.08);
+            border-color: #4da3ff;
+            color: #4da3ff;
         }
 
-        /* =========================
-           3D OBJECT
-        ========================= */
-
-        .scene {
-            width: 360px;
-            height: 360px;
-            perspective: 900px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .cube {
-            width: 210px;
-            height: 210px;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: rotateCube 12s infinite linear;
-        }
-
-        .face {
-            position: absolute;
-            width: 210px;
-            height: 210px;
-            border: 1px solid rgba(255,255,255,.25);
-            background: linear-gradient(
-                135deg,
-                rgba(108,99,255,.35),
-                rgba(0,217,255,.08)
-            );
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 42px;
-            font-weight: 800;
-            box-shadow: inset 0 0 40px rgba(108,99,255,.1);
-        }
-
-        .front  { transform: translateZ(105px); }
-        .back   { transform: rotateY(180deg) translateZ(105px); }
-        .right  { transform: rotateY(90deg) translateZ(105px); }
-        .left   { transform: rotateY(-90deg) translateZ(105px); }
-        .top    { transform: rotateX(90deg) translateZ(105px); }
-        .bottom { transform: rotateX(-90deg) translateZ(105px); }
-
-        @keyframes rotateCube {
-            from {
-                transform: rotateX(-15deg) rotateY(0deg);
-            }
-            to {
-                transform: rotateX(-15deg) rotateY(360deg);
-            }
-        }
-
-        /* =========================
-           SECTIONS
-        ========================= */
+        /* SECTIONS */
 
         section {
-            padding: 110px 8%;
+            padding: 110px 0;
+        }
+
+        .section-label {
+            color: #4da3ff;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
         }
 
         .section-title {
-            margin-bottom: 55px;
-        }
-
-        .section-title small {
-            color: #6c63ff;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-size: 12px;
-        }
-
-        .section-title h2 {
             font-size: 42px;
-            margin-top: 10px;
+            margin-bottom: 20px;
         }
 
-        .section-title p {
-            color: #8f96ac;
-            margin-top: 12px;
+        .section-description {
+            color: #9eabbc;
+            max-width: 700px;
+            margin-bottom: 45px;
         }
 
-        /* =========================
-           ABOUT
-        ========================= */
+        /* ABOUT */
 
         .about-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 50px;
         }
 
-        .glass-card {
-            padding: 35px;
-            border-radius: 20px;
-            background: rgba(255,255,255,.035);
-            border: 1px solid rgba(255,255,255,.08);
-            transition: .3s;
-        }
-
-        .glass-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(108,99,255,.4);
-        }
-
-        .glass-card h3 {
-            margin-bottom: 15px;
-            font-size: 22px;
-        }
-
-        .glass-card p {
-            color: #a2a8bb;
-            line-height: 1.8;
-        }
-
-        /* =========================
-           SKILLS
-        ========================= */
-
-        .skills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .skill {
-            padding: 13px 18px;
-            border-radius: 10px;
-            background: rgba(255,255,255,.04);
-            border: 1px solid rgba(255,255,255,.08);
-            color: #dce0ee;
-            transition: .3s;
-        }
-
-        .skill:hover {
-            transform: translateY(-4px);
-            border-color: #6c63ff;
-        }
-
-        /* =========================
-           PROJECTS
-        ========================= */
-
-        .projects {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        .project {
-            min-height: 280px;
-            padding: 30px;
-            border-radius: 20px;
-            background: linear-gradient(
-                145deg,
-                rgba(255,255,255,.06),
-                rgba(255,255,255,.015)
-            );
-            border: 1px solid rgba(255,255,255,.08);
-            transition: .35s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .project::before {
-            content: "";
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            background: #6c63ff;
-            filter: blur(100px);
-            opacity: .1;
-            right: -80px;
-            top: -80px;
-        }
-
-        .project:hover {
-            transform: translateY(-10px);
-            border-color: rgba(108,99,255,.45);
-        }
-
-        .project-number {
-            color: #6c63ff;
-            font-size: 13px;
-            margin-bottom: 40px;
-        }
-
-        .project h3 {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        .project p {
-            color: #9ba1b4;
-            line-height: 1.7;
-        }
-
-        /* =========================
-           CONTACT
-        ========================= */
-
-        .contact {
-            text-align: center;
-            max-width: 800px;
-            margin: auto;
-        }
-
-        .contact h2 {
-            font-size: clamp(38px, 6vw, 65px);
+        .about-text p {
+            color: #aeb9c8;
             margin-bottom: 20px;
         }
 
-        .contact p {
-            color: #969caf;
-            line-height: 1.8;
-            margin-bottom: 30px;
+        .info-card {
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
         }
 
-        /* =========================
-           FOOTER
-        ========================= */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span:first-child {
+            color: #7f8c9e;
+        }
+
+        /* SKILLS */
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .skill {
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            transition: 0.3s;
+        }
+
+        .skill:hover {
+            transform: translateY(-5px);
+            border-color: rgba(77,163,255,0.5);
+        }
+
+        .skill h3 {
+            margin-bottom: 8px;
+        }
+
+        .skill p {
+            color: #8795a7;
+            font-size: 14px;
+        }
+
+        /* PROJECT */
+
+        .project-card {
+            overflow: hidden;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.09);
+            background: #0b1728;
+        }
+
+        .project-image {
+            width: 100%;
+            background: #030912;
+            padding: 20px;
+        }
+
+        .project-image img {
+            display: block;
+            width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .project-content {
+            padding: 35px;
+        }
+
+        .project-content h3 {
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .project-content p {
+            color: #9eabbc;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+
+        .technologies {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .tech {
+            padding: 7px 12px;
+            background: rgba(77,163,255,0.1);
+            border: 1px solid rgba(77,163,255,0.2);
+            border-radius: 20px;
+            color: #6eb5ff;
+            font-size: 12px;
+        }
+
+        /* CONTACT */
+
+        .contact-box {
+            text-align: center;
+            padding: 60px 30px;
+            border-radius: 20px;
+            background: linear-gradient(
+                135deg,
+                rgba(77,163,255,0.12),
+                rgba(120,80,255,0.08)
+            );
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .contact-box p {
+            color: #9eabbc;
+            margin: 15px auto 30px;
+            max-width: 600px;
+        }
+
+        /* FOOTER */
 
         footer {
-            padding: 30px 8%;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            color: #738093;
             text-align: center;
-            border-top: 1px solid rgba(255,255,255,.08);
-            color: #70778c;
             font-size: 13px;
         }
 
-        /* =========================
-           RESPONSIVE
-        ========================= */
+        /* MOBILE */
 
-        @media (max-width: 900px) {
+        @media (max-width: 800px) {
 
-            .hero {
-                flex-direction: column;
-                text-align: center;
-                padding-top: 130px;
+            .nav-links {
+                gap: 12px;
             }
 
-            .hero p {
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .buttons {
-                justify-content: center;
+            .nav-links a {
+                font-size: 12px;
             }
 
             .about-grid {
                 grid-template-columns: 1fr;
             }
 
-            .projects {
-                grid-template-columns: 1fr;
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .scene {
-                transform: scale(.75);
-                margin-top: -30px;
+            .hero h1 {
+                font-size: 55px;
             }
 
-            .nav-links {
-                display: none;
+            .section-title {
+                font-size: 34px;
             }
         }
 
         @media (max-width: 500px) {
 
+            .nav-content {
+                height: 65px;
+            }
+
+            .logo {
+                font-size: 19px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
             section {
-                padding: 80px 6%;
-            }
-
-            .hero {
-                padding-left: 6%;
-                padding-right: 6%;
-            }
-
-            .hero h1 {
-                font-size: 48px;
-                letter-spacing: -2px;
-            }
-
-            .scene {
-                transform: scale(.6);
+                padding: 80px 0;
             }
         }
     </style>
@@ -486,60 +395,292 @@
 
 <body>
 
-<!-- =========================
-     NAVIGATION
-========================= -->
+<!-- NAVIGATION -->
 
 <nav>
+    <div class="container nav-content">
 
-    <div class="logo">
-        Ali<span>.</span>
+        <a href="#accueil" class="logo">
+            ALI<span>.</span>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="#accueil">Accueil</a></li>
+            <li><a href="#apropos">À propos</a></li>
+            <li><a href="#competences">Compétences</a></li>
+            <li><a href="#projets">Projet</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+
     </div>
-
-    <ul class="nav-links">
-        <li><a href="#accueil">Accueil</a></li>
-        <li><a href="#apropos">À propos</a></li>
-        <li><a href="#competences">Compétences</a></li>
-        <li><a href="#projets">Projets</a></li>
-        <li><a href="#contact">Contact</a></li>
-    </ul>
-
 </nav>
 
 
-<!-- =========================
-     HERO
-========================= -->
-
-<main>
+<!-- HERO -->
 
 <section class="hero" id="accueil">
 
-    <div class="hero-content">
+    <div class="container">
 
-        <div class="badge">
-            ● Disponible pour de nouveaux projets
+        <div class="hero-content">
+
+            <span class="tag">
+                DÉVELOPPEUR DIGITAL
+            </span>
+
+            <h1>
+                Bonjour, je suis<br>
+                <span>Ali EL Habib.</span>
+            </h1>
+
+            <p>
+                Étudiant en développement digital, passionné par la
+                création d'interfaces web modernes, la programmation
+                et la conception de solutions numériques.
+            </p>
+
+            <div class="buttons">
+                <a href="#projets" class="btn btn-primary">
+                    Voir mon projet
+                </a>
+
+                <a href="#contact" class="btn btn-secondary">
+                    Me contacter
+                </a>
+            </div>
+
         </div>
 
-        <h1>
-            Bonjour, je suis<br>
-            <span>Ali El Habib</span>
-        </h1>
+    </div>
 
-        <p>
-            Développeur digital passionné par la création
-            d'expériences web modernes, performantes et
-            élégantes. Je transforme les idées en solutions
-            numériques concrètes.
+</section>
+
+
+<!-- À PROPOS -->
+
+<section id="apropos">
+
+    <div class="container">
+
+        <div class="section-label">
+            01 — À PROPOS
+        </div>
+
+        <h2 class="section-title">
+            Qui suis-je ?
+        </h2>
+
+        <div class="about-grid">
+
+            <div class="about-text">
+
+                <p>
+                    Je suis <strong>Ali EL Habib</strong>, étudiant en
+                    développement digital à l'OFPPT de Tanger.
+                </p>
+
+                <p>
+                    Je m'intéresse particulièrement au développement
+                    web et à la conception d'applications modernes,
+                    avec une approche orientée vers la simplicité,
+                    la performance et l'expérience utilisateur.
+                </p>
+
+                <p>
+                    Mon objectif est de continuer à développer mes
+                    compétences techniques et de construire des
+                    projets numériques professionnels.
+                </p>
+
+            </div>
+
+            <div class="info-card">
+
+                <div class="info-row">
+                    <span>Nom</span>
+                    <strong>Ali EL Habib</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Domaine</span>
+                    <strong>Développement Digital</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Formation</span>
+                    <strong>OFPPT</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Spécialité</span>
+                    <strong>Développement Web</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- COMPÉTENCES -->
+
+<section id="competences">
+
+    <div class="container">
+
+        <div class="section-label">
+            02 — COMPÉTENCES
+        </div>
+
+        <h2 class="section-title">
+            Technologies
+        </h2>
+
+        <p class="section-description">
+            Les principales technologies et outils que j'utilise
+            dans mon parcours de développement digital.
         </p>
 
-        <div class="buttons">
+        <div class="skills-grid">
 
-            <a href="#projets" class="btn btn-primary">
-                Voir mes projets →
-            </a>
+            <div class="skill">
+                <h3>HTML5</h3>
+                <p>Structure et intégration des interfaces web.</p>
+            </div>
 
-            <a href="#contact" class="btn btn-secondary">
+            <div class="skill">
+                <h3>CSS3</h3>
+                <p>Design responsive et interfaces modernes.</p>
+            </div>
+
+            <div class="skill">
+                <h3>JavaScript</h3>
+                <p>Interactions et fonctionnalités dynamiques.</p>
+            </div>
+
+            <div class="skill">
+                <h3>PHP</h3>
+                <p>Développement côté serveur et logique web.</p>
+            </div>
+
+            <div class="skill">
+                <h3>Python</h3>
+                <p>Programmation et développement de solutions.</p>
+            </div>
+
+            <div class="skill">
+                <h3>SQL</h3>
+                <p>Gestion et manipulation des bases de données.</p>
+            </div>
+
+            <div class="skill">
+                <h3>Git</h3>
+                <p>Gestion des versions et suivi des projets.</p>
+            </div>
+
+            <div class="skill">
+                <h3>StarUML</h3>
+                <p>Analyse, modélisation et conception UML.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PROJET -->
+
+<section id="projets">
+
+    <div class="container">
+
+        <div class="section-label">
+            03 — PROJET
+        </div>
+
+        <h2 class="section-title">
+            Projet de conception UML
+        </h2>
+
+        <p class="section-description">
+            Un projet de modélisation réalisé avec StarUML pour
+            analyser et représenter la structure d'une application.
+        </p>
+
+
+        <div class="project-card">
+
+            <div class="project-image">
+
+                <img
+                    src="/images/class-diagram.png"
+                    alt="Diagramme de classes UML réalisé avec StarUML"
+                >
+
+            </div>
+
+
+            <div class="project-content">
+
+                <h3>
+                    Système de gestion académique
+                </h3>
+
+                <p>
+                    Conception d'un système académique permettant
+                    de représenter les relations entre l'académie,
+                    les écoles, les départements, les enseignants,
+                    les étudiants, les matières et les salles.
+                </p>
+
+                <div class="technologies">
+
+                    <span class="tech">StarUML</span>
+                    <span class="tech">UML</span>
+                    <span class="tech">Diagramme de classes</span>
+                    <span class="tech">Modélisation</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- CONTACT -->
+
+<section id="contact">
+
+    <div class="container">
+
+        <div class="contact-box">
+
+            <div class="section-label">
+                04 — CONTACT
+            </div>
+
+            <h2 class="section-title">
+                Travaillons ensemble
+            </h2>
+
+            <p>
+                Vous souhaitez échanger avec moi à propos d'un projet
+                ou de mon parcours ? N'hésitez pas à me contacter.
+            </p>
+
+            <a
+                href="mailto:alilhb20007@gmail.com"
+                class="btn btn-primary"
+            >
                 Me contacter
             </a>
 
@@ -547,253 +688,20 @@
 
     </div>
 
-
-    <!-- 3D -->
-
-    <div class="scene">
-
-        <div class="cube">
-
-            <div class="face front">ALI</div>
-            <div class="face back">DEV</div>
-            <div class="face right">&lt;/&gt;</div>
-            <div class="face left">3D</div>
-            <div class="face top">WEB</div>
-            <div class="face bottom">AI</div>
-
-        </div>
-
-    </div>
-
 </section>
 
 
-<!-- =========================
-     ABOUT
-========================= -->
-
-<section id="apropos">
-
-    <div class="section-title">
-        <small>01 — À propos</small>
-        <h2>Qui suis-je ?</h2>
-        <p>Un étudiant passionné par le monde du digital.</p>
-    </div>
-
-    <div class="about-grid">
-
-        <div class="glass-card">
-
-            <h3>Mon parcours</h3>
-
-            <p>
-                Je suis étudiant en développement digital à
-                l'OFPPT de Tanger. Je développe progressivement
-                mes compétences dans la programmation, le
-                développement web et les technologies numériques.
-            </p>
-
-        </div>
-
-        <div class="glass-card">
-
-            <h3>Ma vision</h3>
-
-            <p>
-                Mon objectif est de créer des interfaces modernes,
-                rapides et accessibles, tout en continuant à
-                apprendre et à développer des projets innovants.
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================
-     SKILLS
-========================= -->
-
-<section id="competences">
-
-    <div class="section-title">
-
-        <small>02 — Compétences</small>
-
-        <h2>Technologies</h2>
-
-        <p>
-            Les technologies que j'utilise dans mes projets.
-        </p>
-
-    </div>
-
-    <div class="skills">
-
-        <div class="skill">HTML5</div>
-        <div class="skill">CSS3</div>
-        <div class="skill">JavaScript</div>
-        <div class="skill">PHP</div>
-        <div class="skill">Python</div>
-        <div class="skill">SQL</div>
-        <div class="skill">Git</div>
-        <div class="skill">GitHub</div>
-        <div class="skill">VS Code</div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================
-     PROJECTS
-========================= -->
-
-<section id="projets">
-
-    <div class="section-title">
-
-        <small>03 — Projets</small>
-
-        <h2>Mes projets</h2>
-
-        <p>
-            Quelques projets réalisés ou actuellement en développement.
-        </p>
-
-    </div>
-
-
-    <div class="projects">
-
-
-        <div class="project">
-
-            <div class="project-number">
-                PROJET 01
-            </div>
-
-            <h3>Portfolio Digital</h3>
-
-            <p>
-                Création d'un portfolio professionnel moderne
-                avec une interface responsive et une expérience
-                utilisateur interactive.
-            </p>
-
-        </div>
-
-
-        <div class="project">
-
-            <div class="project-number">
-                PROJET 02
-            </div>
-
-            <h3>NeuroVid AI</h3>
-
-            <p>
-                Concept d'une plateforme automatisée utilisant
-                l'intelligence artificielle pour la production
-                de contenu vidéo.
-            </p>
-
-        </div>
-
-
-        <div class="project">
-
-            <div class="project-number">
-                PROJET 03
-            </div>
-
-            <h3>Projet Web</h3>
-
-            <p>
-                Application web développée dans le cadre de mon
-                apprentissage du développement digital.
-            </p>
-
-        </div>
-
-
-    </div>
-
-</section>
-
-
-<!-- =========================
-     CONTACT
-========================= -->
-
-<section id="contact">
-
-    <div class="contact">
-
-        <small style="color:#6c63ff; letter-spacing:3px;">
-            04 — CONTACT
-        </small>
-
-        <h2>
-            Construisons quelque chose
-            <span style="color:#6c63ff;">ensemble.</span>
-        </h2>
-
-        <p>
-            Vous avez une idée, un projet ou simplement envie
-            d'échanger ? N'hésitez pas à me contacter.
-        </p>
-
-        <div class="buttons" style="justify-content:center;">
-
-            <a
-                href="mailto:contact@exemple.com"
-                class="btn btn-primary"
-            >
-                ✉ Me contacter
-            </a>
-
-        </div>
-
-    </div>
-
-</section>
-
-</main>
-
-
-<!-- =========================
-     FOOTER
-========================= -->
+<!-- FOOTER -->
 
 <footer>
 
-    © 2026 Ali El Habib — Développeur Digital
+    <div class="container">
+
+        © 2026 Ali EL Habib — Portfolio Développement Digital
+
+    </div>
 
 </footer>
-
-
-<script>
-
-    // Effet 3D suivant la position de la souris
-    const cube = document.querySelector(".cube");
-
-    document.addEventListener("mousemove", (e) => {
-
-        if (window.innerWidth < 900) return;
-
-        const x = (window.innerWidth / 2 - e.clientX) / 60;
-        const y = (window.innerHeight / 2 - e.clientY) / 60;
-
-        cube.style.animationPlayState = "paused";
-        cube.style.transform =
-            `rotateX(${-15 + y}deg) rotateY(${x}deg)`;
-
-    });
-
-</script>
 
 </body>
 </html>
