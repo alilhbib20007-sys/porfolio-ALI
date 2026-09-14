@@ -2,15 +2,20 @@
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Ali EL Habib — Développeur Digital</title>
+    <title>Ali EL Habib | Développeur Digital</title>
 
-    <meta name="description" content="Portfolio de Ali EL Habib, développeur digital spécialisé dans le développement web.">
+    <meta
+        name="description"
+        content="Portfolio de Ali EL Habib - Développeur Digital"
+    >
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -24,13 +29,13 @@
         body {
             font-family: Arial, Helvetica, sans-serif;
             background: #07111f;
-            color: #f5f7fa;
+            color: #ffffff;
             line-height: 1.6;
         }
 
         a {
-            color: inherit;
             text-decoration: none;
+            color: inherit;
         }
 
         .container {
@@ -45,23 +50,25 @@
             top: 0;
             left: 0;
             width: 100%;
+            height: 72px;
             z-index: 1000;
-            background: rgba(7, 17, 31, 0.88);
+
+            background: rgba(7, 17, 31, 0.9);
             backdrop-filter: blur(15px);
+
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
-        .nav-content {
-            height: 75px;
+        .nav-container {
+            height: 100%;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
         }
 
         .logo {
             font-size: 24px;
             font-weight: 800;
-            letter-spacing: 1px;
         }
 
         .logo span {
@@ -70,12 +77,12 @@
 
         .nav-links {
             display: flex;
-            gap: 30px;
+            gap: 28px;
             list-style: none;
         }
 
         .nav-links a {
-            color: #b9c5d4;
+            color: #aab6c5;
             font-size: 14px;
             transition: 0.3s;
         }
@@ -90,30 +97,48 @@
             min-height: 100vh;
             display: flex;
             align-items: center;
-            padding-top: 75px;
+
+            padding-top: 72px;
+
             background:
-                radial-gradient(circle at 80% 20%, rgba(77,163,255,0.16), transparent 35%),
-                radial-gradient(circle at 20% 80%, rgba(120,80,255,0.12), transparent 35%);
+                radial-gradient(
+                    circle at 80% 20%,
+                    rgba(77,163,255,0.16),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at 20% 80%,
+                    rgba(120,80,255,0.12),
+                    transparent 35%
+                );
         }
 
         .hero-content {
             max-width: 800px;
         }
 
-        .tag {
+        .badge {
             display: inline-block;
+
             padding: 8px 15px;
-            border: 1px solid rgba(77,163,255,0.35);
+
+            border: 1px solid rgba(77,163,255,0.4);
             border-radius: 30px;
+
             color: #4da3ff;
+
             background: rgba(77,163,255,0.08);
-            font-size: 13px;
+
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+
             margin-bottom: 25px;
         }
 
         .hero h1 {
-            font-size: clamp(48px, 8vw, 85px);
-            line-height: 1;
+            font-size: clamp(48px, 8vw, 82px);
+            line-height: 1.05;
             margin-bottom: 25px;
         }
 
@@ -122,9 +147,9 @@
         }
 
         .hero p {
-            color: #aeb9c8;
-            font-size: 19px;
-            max-width: 650px;
+            color: #aab6c5;
+            font-size: 18px;
+            max-width: 680px;
             margin-bottom: 35px;
         }
 
@@ -135,6 +160,7 @@
         }
 
         .btn {
+            display: inline-block;
             padding: 13px 22px;
             border-radius: 8px;
             font-weight: 700;
@@ -152,7 +178,7 @@
 
         .btn-secondary {
             border: 1px solid rgba(255,255,255,0.15);
-            color: #fff;
+            color: white;
         }
 
         .btn-secondary:hover {
@@ -166,9 +192,9 @@
             padding: 110px 0;
         }
 
-        .section-label {
+        .label {
             color: #4da3ff;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             letter-spacing: 2px;
             margin-bottom: 12px;
@@ -176,11 +202,11 @@
 
         .section-title {
             font-size: 42px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .section-description {
-            color: #9eabbc;
+            color: #95a3b5;
             max-width: 700px;
             margin-bottom: 45px;
         }
@@ -190,40 +216,43 @@
         .about-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 50px;
+            gap: 45px;
         }
 
         .about-text p {
-            color: #aeb9c8;
-            margin-bottom: 20px;
+            color: #aab6c5;
+            margin-bottom: 18px;
         }
 
-        .info-card {
+        .about-card {
             padding: 30px;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.03);
+
             border-radius: 15px;
+
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
-        .info-row {
+        .info {
             display: flex;
             justify-content: space-between;
-            gap: 20px;
+
             padding: 15px 0;
+
             border-bottom: 1px solid rgba(255,255,255,0.07);
         }
 
-        .info-row:last-child {
+        .info:last-child {
             border-bottom: none;
         }
 
-        .info-row span:first-child {
-            color: #7f8c9e;
+        .info span {
+            color: #718096;
         }
 
         /* SKILLS */
 
-        .skills-grid {
+        .skills {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 18px;
@@ -231,9 +260,12 @@
 
         .skill {
             padding: 25px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.08);
+
+            border-radius: 13px;
+
             background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+
             transition: 0.3s;
         }
 
@@ -247,149 +279,151 @@
         }
 
         .skill p {
-            color: #8795a7;
-            font-size: 14px;
+            color: #8290a2;
+            font-size: 13px;
         }
 
         /* PROJECT */
 
-        .project-card {
+        .project {
             overflow: hidden;
+
             border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.09);
+
             background: #0b1728;
+
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
-        .project-image {
-            width: 100%;
-            background: #030912;
+        .diagram {
             padding: 20px;
+            background: #030912;
         }
 
-        .project-image img {
-            display: block;
+        .diagram img {
             width: 100%;
-            max-height: 600px;
+            max-height: 650px;
+
+            display: block;
+
             object-fit: contain;
+
             border-radius: 10px;
         }
 
-        .project-content {
+        .project-info {
             padding: 35px;
         }
 
-        .project-content h3 {
+        .project-info h3 {
             font-size: 30px;
             margin-bottom: 15px;
         }
 
-        .project-content p {
-            color: #9eabbc;
-            max-width: 800px;
-            margin-bottom: 20px;
+        .project-info p {
+            color: #95a3b5;
+            margin-bottom: 22px;
         }
 
-        .technologies {
+        .tags {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 25px;
         }
 
-        .tech {
+        .tag {
             padding: 7px 12px;
-            background: rgba(77,163,255,0.1);
-            border: 1px solid rgba(77,163,255,0.2);
+
             border-radius: 20px;
-            color: #6eb5ff;
+
+            color: #70b8ff;
+
+            background: rgba(77,163,255,0.08);
+
+            border: 1px solid rgba(77,163,255,0.2);
+
             font-size: 12px;
         }
 
         /* CONTACT */
 
-        .contact-box {
+        .contact {
             text-align: center;
+
             padding: 60px 30px;
+
             border-radius: 20px;
-            background: linear-gradient(
-                135deg,
-                rgba(77,163,255,0.12),
-                rgba(120,80,255,0.08)
-            );
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(77,163,255,0.12),
+                    rgba(120,80,255,0.08)
+                );
+
             border: 1px solid rgba(255,255,255,0.08);
         }
 
-        .contact-box p {
-            color: #9eabbc;
-            margin: 15px auto 30px;
+        .contact p {
+            color: #95a3b5;
             max-width: 600px;
+            margin: 15px auto 30px;
         }
 
         /* FOOTER */
 
         footer {
             padding: 30px 0;
+
             border-top: 1px solid rgba(255,255,255,0.08);
-            color: #738093;
+
             text-align: center;
+
+            color: #718096;
+
             font-size: 13px;
         }
 
-        /* MOBILE */
+        /* RESPONSIVE */
 
-        @media (max-width: 800px) {
-
-            .nav-links {
-                gap: 12px;
-            }
-
-            .nav-links a {
-                font-size: 12px;
-            }
+        @media (max-width: 850px) {
 
             .about-grid {
                 grid-template-columns: 1fr;
             }
 
-            .skills-grid {
+            .skills {
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .hero h1 {
-                font-size: 55px;
-            }
-
-            .section-title {
-                font-size: 34px;
+            .nav-links {
+                gap: 15px;
             }
         }
 
-        @media (max-width: 500px) {
-
-            .nav-content {
-                height: 65px;
-            }
-
-            .logo {
-                font-size: 19px;
-            }
+        @media (max-width: 600px) {
 
             .nav-links {
                 display: none;
             }
 
-            .skills-grid {
+            .skills {
                 grid-template-columns: 1fr;
             }
 
-            .hero p {
-                font-size: 16px;
+            .hero h1 {
+                font-size: 50px;
+            }
+
+            .section-title {
+                font-size: 34px;
             }
 
             section {
                 padding: 80px 0;
             }
         }
+
     </style>
 </head>
 
@@ -398,21 +432,39 @@
 <!-- NAVIGATION -->
 
 <nav>
-    <div class="container nav-content">
+
+    <div class="container nav-container">
 
         <a href="#accueil" class="logo">
             ALI<span>.</span>
         </a>
 
         <ul class="nav-links">
-            <li><a href="#accueil">Accueil</a></li>
-            <li><a href="#apropos">À propos</a></li>
-            <li><a href="#competences">Compétences</a></li>
-            <li><a href="#projets">Projet</a></li>
-            <li><a href="#contact">Contact</a></li>
+
+            <li>
+                <a href="#accueil">Accueil</a>
+            </li>
+
+            <li>
+                <a href="#apropos">À propos</a>
+            </li>
+
+            <li>
+                <a href="#competences">Compétences</a>
+            </li>
+
+            <li>
+                <a href="#projet">Projet</a>
+            </li>
+
+            <li>
+                <a href="#contact">Contact</a>
+            </li>
+
         </ul>
 
     </div>
+
 </nav>
 
 
@@ -424,29 +476,31 @@
 
         <div class="hero-content">
 
-            <span class="tag">
+            <span class="badge">
                 DÉVELOPPEUR DIGITAL
             </span>
 
             <h1>
-                Bonjour, je suis<br>
+                Bonjour, je suis
                 <span>Ali EL Habib.</span>
             </h1>
 
             <p>
-                Étudiant en développement digital, passionné par la
-                création d'interfaces web modernes, la programmation
-                et la conception de solutions numériques.
+                Étudiant en développement digital à l'OFPPT de Tanger,
+                passionné par le développement web, la programmation
+                et la conception de solutions numériques modernes.
             </p>
 
             <div class="buttons">
-                <a href="#projets" class="btn btn-primary">
+
+                <a href="#projet" class="btn btn-primary">
                     Voir mon projet
                 </a>
 
                 <a href="#contact" class="btn btn-secondary">
                     Me contacter
                 </a>
+
             </div>
 
         </div>
@@ -456,18 +510,18 @@
 </section>
 
 
-<!-- À PROPOS -->
+<!-- ABOUT -->
 
 <section id="apropos">
 
     <div class="container">
 
-        <div class="section-label">
+        <div class="label">
             01 — À PROPOS
         </div>
 
         <h2 class="section-title">
-            Qui suis-je ?
+            À propos de moi
         </h2>
 
         <div class="about-grid">
@@ -480,38 +534,36 @@
                 </p>
 
                 <p>
-                    Je m'intéresse particulièrement au développement
-                    web et à la conception d'applications modernes,
-                    avec une approche orientée vers la simplicité,
-                    la performance et l'expérience utilisateur.
+                    Je développe mes compétences dans le domaine du
+                    développement web et de la programmation.
                 </p>
 
                 <p>
-                    Mon objectif est de continuer à développer mes
-                    compétences techniques et de construire des
-                    projets numériques professionnels.
+                    Mon objectif est de créer des solutions numériques
+                    modernes, simples et efficaces tout en continuant
+                    à améliorer mes compétences techniques.
                 </p>
 
             </div>
 
-            <div class="info-card">
+            <div class="about-card">
 
-                <div class="info-row">
+                <div class="info">
                     <span>Nom</span>
                     <strong>Ali EL Habib</strong>
                 </div>
 
-                <div class="info-row">
+                <div class="info">
                     <span>Domaine</span>
                     <strong>Développement Digital</strong>
                 </div>
 
-                <div class="info-row">
+                <div class="info">
                     <span>Formation</span>
                     <strong>OFPPT</strong>
                 </div>
 
-                <div class="info-row">
+                <div class="info">
                     <span>Spécialité</span>
                     <strong>Développement Web</strong>
                 </div>
@@ -525,30 +577,30 @@
 </section>
 
 
-<!-- COMPÉTENCES -->
+<!-- SKILLS -->
 
 <section id="competences">
 
     <div class="container">
 
-        <div class="section-label">
+        <div class="label">
             02 — COMPÉTENCES
         </div>
 
         <h2 class="section-title">
-            Technologies
+            Mes compétences
         </h2>
 
         <p class="section-description">
-            Les principales technologies et outils que j'utilise
+            Les principales technologies et outils étudiés
             dans mon parcours de développement digital.
         </p>
 
-        <div class="skills-grid">
+        <div class="skills">
 
             <div class="skill">
                 <h3>HTML5</h3>
-                <p>Structure et intégration des interfaces web.</p>
+                <p>Création de structures web modernes.</p>
             </div>
 
             <div class="skill">
@@ -563,27 +615,27 @@
 
             <div class="skill">
                 <h3>PHP</h3>
-                <p>Développement côté serveur et logique web.</p>
+                <p>Développement web côté serveur.</p>
             </div>
 
             <div class="skill">
                 <h3>Python</h3>
-                <p>Programmation et développement de solutions.</p>
+                <p>Programmation et développement.</p>
             </div>
 
             <div class="skill">
                 <h3>SQL</h3>
-                <p>Gestion et manipulation des bases de données.</p>
+                <p>Gestion des bases de données.</p>
             </div>
 
             <div class="skill">
                 <h3>Git</h3>
-                <p>Gestion des versions et suivi des projets.</p>
+                <p>Gestion des versions des projets.</p>
             </div>
 
             <div class="skill">
                 <h3>StarUML</h3>
-                <p>Analyse, modélisation et conception UML.</p>
+                <p>Analyse et modélisation UML.</p>
             </div>
 
         </div>
@@ -593,66 +645,62 @@
 </section>
 
 
-<!-- PROJET -->
+<!-- PROJECT -->
 
-<section id="projets">
+<section id="projet">
 
     <div class="container">
 
-        <div class="section-label">
+        <div class="label">
             03 — PROJET
         </div>
 
         <h2 class="section-title">
-            Projet de conception UML
+            Conception UML
         </h2>
 
         <p class="section-description">
-            Un projet de modélisation réalisé avec StarUML pour
-            analyser et représenter la structure d'une application.
+            Projet de conception et de modélisation réalisé avec
+            StarUML.
         </p>
 
+        <div class="project">
 
-        <div class="project-card">
-
-            <div class="project-image">
-
-                <img
-                    src="/images/class-diagram.png"
-                    alt="Diagramme de classes UML réalisé avec StarUML"
-                >
-
-            </div>
-<div class="project-card">
-
-            <div class="project-image">
+            <div class="diagram">
 
                 <img
-                    src="/images/class-diagram1.png"
-                    alt="Diagramme de classes UML réalisé avec StarUML"
+                    src="/images/ClassDiagram1.png"
+                    alt="Class Diagram UML"
                 >
 
             </div>
 
-            <div class="project-content">
+            <div class="project-info">
 
                 <h3>
                     Système de gestion académique
                 </h3>
 
                 <p>
-                    Conception d'un système académique permettant
-                    de représenter les relations entre l'académie,
-                    les écoles, les départements, les enseignants,
-                    les étudiants, les matières et les salles.
+                    Modélisation d'un système académique permettant
+                    de représenter les différentes entités et leurs
+                    relations : académie, école, département,
+                    enseignant, étudiant, matière et salle.
                 </p>
 
-                <div class="technologies">
+                <div class="tags">
 
-                    <span class="tech">StarUML</span>
-                    <span class="tech">UML</span>
-                    <span class="tech">Diagramme de classes</span>
-                    <span class="tech">Modélisation</span>
+                    <span class="tag">StarUML</span>
+
+                    <span class="tag">UML</span>
+
+                    <span class="tag">
+                        Class Diagram
+                    </span>
+
+                    <span class="tag">
+                        Modélisation
+                    </span>
 
                 </div>
 
@@ -671,14 +719,14 @@
 
     <div class="container">
 
-        <div class="contact-box">
+        <div class="contact">
 
-            <div class="section-label">
+            <div class="label">
                 04 — CONTACT
             </div>
 
             <h2 class="section-title">
-                Travaillons ensemble
+                Me contacter
             </h2>
 
             <p>
@@ -690,7 +738,7 @@
                 href="mailto:alilhb20007@gmail.com"
                 class="btn btn-primary"
             >
-                Me contacter
+                Envoyer un email
             </a>
 
         </div>
