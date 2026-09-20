@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.9.0",
+      "includeFiles": "api/**"
+    }
+  },
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "^/$", "dest": "/api/index.php?page=accueil" },
+    { "src": "^/(mini-projets|td|controles)/?$", "dest": "/api/index.php?page=$1" },
+    { "src": "^/(.*)$", "dest": "/api/index.php?page=404" }
+  ]
+}
