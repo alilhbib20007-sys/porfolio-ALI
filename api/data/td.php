@@ -18,13 +18,23 @@ return [
         'pdf'         => null,
         'tags'        => ['UML', 'OFPPT', 'Conception'],
     ],
+    [
+        'titre'       => 'TD3 - Rapport de prototypage Figma',
+        'module'      => 'UX/UI Design',
+        'description' => "Conception d'un prototype d'application mobile de partage et de messagerie (« Bruce ») sur Figma : profil, liste des conversations, discussion et saisie d'un message.",
+        'image'       => null,
+        'pdf'         => '/pdf/td/td3-rapport-prototype-figma.pdf',
+        'tags'        => ['Figma', 'UX/UI', 'Prototypage', 'OFPPT'],
+    ],
+
+
     // [
-    //     'titre'       => 'TD3 - ...',
+    //     'titre'       => 'TD4 - ...',
     //     'module'      => 'Algorithmique',
     //     'description' => '...',
-    //     'image'       => '/images/td/td3.png',
-    //     'pdf'         => '/pdf/td/td3.pdf',
-    //     'correction'  => '/pdf/td/td3-correction.pdf',
+    //     'image'       => '/images/td/td4.png',
+    //     'pdf'         => '/pdf/td/td4.pdf',
+    //     'correction'  => '/pdf/td/td4-correction.pdf',
     //     'tags'        => ['...'],
     // ],
 ];
