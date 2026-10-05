@@ -111,6 +111,8 @@ section { padding: 100px 0; }
 .card:hover { transform: translateY(-5px); border-color: var(--cyan); }
 .card-img { display: block; width: 100%; height: 200px; object-fit: contain; padding: 12px; background: #111827; }
 .card-placeholder { display: flex; align-items: center; justify-content: center; font-size: 56px; color: var(--cyan); opacity: 0.6; }
+.card-gallery { display: flex; gap: 6px; padding: 10px; background: #111827; overflow-x: auto; }
+.card-img-sm { flex: 0 0 auto; height: 160px; width: auto; padding: 0; border-radius: 6px; }
 .card-body { display: flex; flex-direction: column; flex: 1; padding: 22px; }
 .card-body h3 { color: var(--cyan); margin: 8px 0; font-size: 18px; }
 .card-body p { color: var(--muted); font-size: 14px; margin-bottom: 12px; }

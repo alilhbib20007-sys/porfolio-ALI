@@ -22,10 +22,22 @@ function render_card(array $it)
     $search = strtolower($it['titre'] . ' ' . $module . ' ' . implode(' ', $tags));
     ob_start();
     ?>
+    <?php
+        // 'images' (tableau) a priorité sur 'image' (une seule) ; sinon aucune image.
+        $images = !empty($it['images']) ? $it['images'] : (!empty($it['image']) ? [$it['image']] : []);
+    ?>
     <article class="card" data-module="<?= e($module) ?>" data-search="<?= e($search) ?>">
-        <?php if (!empty($it['image'])): ?>
-            <a href="<?= e($it['image']) ?>" target="_blank" rel="noopener">
-                <img class="card-img" src="<?= e($it['image']) ?>" alt="<?= e($it['titre']) ?>" loading="lazy">
+        <?php if (count($images) > 1): ?>
+            <div class="card-gallery">
+                <?php foreach ($images as $img): ?>
+                    <a href="<?= e($img) ?>" target="_blank" rel="noopener">
+                        <img class="card-img card-img-sm" src="<?= e($img) ?>" alt="<?= e($it['titre']) ?>" loading="lazy">
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php elseif (count($images) === 1): ?>
+            <a href="<?= e($images[0]) ?>" target="_blank" rel="noopener">
+                <img class="card-img" src="<?= e($images[0]) ?>" alt="<?= e($it['titre']) ?>" loading="lazy">
             </a>
         <?php else: ?>
             <div class="card-img card-placeholder">&lt;/&gt;</div>
