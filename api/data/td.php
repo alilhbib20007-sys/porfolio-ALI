@@ -51,8 +51,36 @@ return [
         'tags'        => ['Agile', 'Scrum', 'Kanban', 'Gestion de projet', 'OFPPT'],
     ],
 
+    [
+        'titre'       => 'Atelier 3 - Les bases de Git',
+        'module'      => 'Git & GitHub',
+        'description' => "Création d'un dépôt local, suivi des fichiers, staging, commits, git diff et git log : trois commits sur une petite page web, avec les réponses à toutes les questions de l'atelier.",
+        'image'       => null,
+        'pdf'         => '/pdf/td/atelier3-bases-git.pdf',
+        'lien'        => 'https://github.com/alilhbib20007-sys/atelier-git',
+        'tags'        => ['Git', 'Commit', 'Staging', 'OFPPT'],
+    ],
+    [
+        'titre'       => 'Atelier 4 - Git et GitHub : travail collaboratif',
+        'module'      => 'Git & GitHub',
+        'description' => "Dépôt distant partagé, branches contact et promotion (deux développeurs), push avec --set-upstream, deux Pull Requests fusionnées dans main et synchronisation avec git pull.",
+        'image'       => null,
+        'pdf'         => '/pdf/td/atelier4-git-collaboratif.pdf',
+        'lien'        => 'https://github.com/alilhbib20007-sys/atelier-collaboratif',
+        'tags'        => ['GitHub', 'Branches', 'Pull Request', 'OFPPT'],
+    ],
+    [
+        'titre'       => 'Atelier 5 - Examen M202 : exercices Git',
+        'module'      => 'Git & GitHub',
+        'description' => "Correction de l'examen régional M202 (Approche agile) : depot_local, branches gestion-produits et feature-xyz, fusions, git restore, push vers GitHub et réinitialisation de l'historique.",
+        'image'       => null,
+        'pdf'         => '/pdf/td/atelier5-examen-git.pdf',
+        'lien'        => 'https://github.com/alilhbib20007-sys/depot_local',
+        'tags'        => ['Git', 'Merge', 'Examen', 'OFPPT'],
+    ],
+
     // [
-    //     'titre'       => 'TD7 - ...',
+    //     'titre'       => 'TD - ...',
     //     'module'      => 'Algorithmique',
     //     'description' => '...',
     //     'image'       => '/images/td/td7.png',
