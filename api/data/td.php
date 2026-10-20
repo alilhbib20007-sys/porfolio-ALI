@@ -42,14 +42,22 @@ return [
         'pdf'         => null,
         'tags'        => ['MPM', 'Ordonnancement', 'Chemin critique', 'OFPPT'],
     ],
+    [
+        'titre'       => 'Fiche de synthèse : méthode Agile et Scrum',
+        'module'      => 'Gestion de projet',
+        'description' => "Notes de cours sur la méthode Agile (flexibilité, collaboration, adaptation au changement) et le framework Scrum : rôles (Product Owner, Scrum Master, Dev Team), Product Backlog, Sprint Backlog, User Story, Story Points, cérémonies (Sprint Planning, Daily, Review, Rétrospective) et Incrément.",
+        'images'      => ['/images/td/td6-agile-scrum-1.jpg', '/images/td/td6-agile-scrum-2.jpg'],
+        'pdf'         => null,
+        'tags'        => ['Agile', 'Scrum', 'Kanban', 'Gestion de projet', 'OFPPT'],
+    ],
 
     // [
-    //     'titre'       => 'TD6 - ...',
+    //     'titre'       => 'TD7 - ...',
     //     'module'      => 'Algorithmique',
     //     'description' => '...',
-    //     'image'       => '/images/td/td6.png',
-    //     'pdf'         => '/pdf/td/td6.pdf',
-    //     'correction'  => '/pdf/td/td6-correction.pdf',
+    //     'image'       => '/images/td/td7.png',
+    //     'pdf'         => '/pdf/td/td7.pdf',
+    //     'correction'  => '/pdf/td/td7-correction.pdf',
     //     'tags'        => ['...'],
     // ],
 ];
