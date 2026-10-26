@@ -6,7 +6,8 @@ require API_DIR . '/includes/header.php';
 render_listing(
     'Mes Contrôles',
     "Énoncés et corrections de mes contrôles, classés par module.",
-    load_data('controles')
+    load_data('controles'),
+    'controles'
 );
 
 require API_DIR . '/includes/footer.php';

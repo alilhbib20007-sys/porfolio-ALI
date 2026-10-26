@@ -47,3 +47,24 @@
     });
   });
 })();
+
+// Page de détail : surligner dans le sommaire la partie en cours de lecture
+(function () {
+  var liens = document.querySelectorAll('.toc a');
+  if (!liens.length || !('IntersectionObserver' in window)) return;
+
+  var parId = {};
+  liens.forEach(function (a) { parId[decodeURIComponent(a.getAttribute('href').slice(1))] = a; });
+
+  var observer = new IntersectionObserver(function (entrees) {
+    entrees.forEach(function (entree) {
+      if (entree.isIntersecting) {
+        liens.forEach(function (a) { a.classList.remove('active'); });
+        var lien = parId[entree.target.id];
+        if (lien) lien.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-90px 0px -70% 0px' });
+
+  document.querySelectorAll('.prose h2[id]').forEach(function (h) { observer.observe(h); });
+})();

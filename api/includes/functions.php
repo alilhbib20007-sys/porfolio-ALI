@@ -14,9 +14,47 @@ function load_data($name)
     return is_file($file) ? require $file : [];
 }
 
-/** Affiche une carte (TD, mini projet ou contrôle). */
-function render_card(array $it)
+/** Sections qui ont une page liste et des pages de détail. */
+function sections()
 {
+    return [
+        'td'           => 'TD',
+        'mini-projets' => 'Mini Projets',
+        'controles'    => 'Contrôles',
+    ];
+}
+
+/** URL de la page de détail d'un élément (ou null s'il n'en a pas). */
+function detail_url($section, array $it)
+{
+    if (empty($it['slug']) || !is_file(content_path($section, $it['slug']))) {
+        return null;
+    }
+    return '/' . $section . '/' . $it['slug'];
+}
+
+/** Chemin du fichier HTML qui contient le détail d'un élément. */
+function content_path($section, $slug)
+{
+    return API_DIR . '/content/' . $section . '/' . $slug . '.html';
+}
+
+/** Cherche un élément par son slug ; renvoie [élément, position, liste] ou null. */
+function find_item($section, $slug)
+{
+    $items = load_data($section);
+    foreach (array_values($items) as $i => $it) {
+        if (!empty($it['slug']) && $it['slug'] === $slug) {
+            return [$it, $i, array_values($items)];
+        }
+    }
+    return null;
+}
+
+/** Affiche une carte (TD, mini projet ou contrôle). */
+function render_card(array $it, $section = '')
+{
+    $url    = $section !== '' ? detail_url($section, $it) : null;
     $module = isset($it['module']) ? $it['module'] : '';
     $tags   = isset($it['tags']) ? $it['tags'] : [];
     $search = strtolower($it['titre'] . ' ' . $module . ' ' . implode(' ', $tags));
@@ -36,9 +74,11 @@ function render_card(array $it)
                 <?php endforeach; ?>
             </div>
         <?php elseif (count($images) === 1): ?>
-            <a href="<?= e($images[0]) ?>" target="_blank" rel="noopener">
+            <a href="<?= e($url ?: $images[0]) ?>" <?= $url ? '' : 'target="_blank" rel="noopener"' ?>>
                 <img class="card-img" src="<?= e($images[0]) ?>" alt="<?= e($it['titre']) ?>" loading="lazy">
             </a>
+        <?php elseif ($url): ?>
+            <a href="<?= e($url) ?>" class="card-img card-placeholder" aria-label="<?= e($it['titre']) ?>">&lt;/&gt;</a>
         <?php else: ?>
             <div class="card-img card-placeholder">&lt;/&gt;</div>
         <?php endif; ?>
@@ -47,7 +87,7 @@ function render_card(array $it)
             <?php if ($module !== ''): ?>
                 <span class="badge"><?= e($module) ?></span>
             <?php endif; ?>
-            <h3><?= e($it['titre']) ?></h3>
+            <h3><?php if ($url): ?><a href="<?= e($url) ?>"><?= e($it['titre']) ?></a><?php else: ?><?= e($it['titre']) ?><?php endif; ?></h3>
 
             <?php if (!empty($it['meta'])): ?>
                 <p class="card-meta"><?= e($it['meta']) ?></p>
@@ -64,6 +104,9 @@ function render_card(array $it)
             </div>
 
             <div class="card-actions">
+                <?php if ($url): ?>
+                    <a class="btn btn-primary btn-sm" href="<?= e($url) ?>">Lire le détail →</a>
+                <?php endif; ?>
                 <?php if (!empty($it['pdf'])): ?>
                     <a class="btn btn-outline btn-sm" href="<?= e($it['pdf']) ?>" target="_blank" rel="noopener">Voir</a>
                     <a class="btn btn-primary btn-sm" href="<?= e($it['pdf']) ?>" download>⬇ PDF</a>
@@ -82,7 +125,7 @@ function render_card(array $it)
 }
 
 /** Affiche une page complète de liste avec recherche + filtre par module. */
-function render_listing($title, $intro, array $items)
+function render_listing($title, $intro, array $items, $section = '')
 {
     $modules = [];
     foreach ($items as $it) {
@@ -111,7 +154,7 @@ function render_listing($title, $intro, array $items)
                 </div>
 
                 <div class="cards-grid" id="cardsGrid">
-                    <?php foreach ($items as $it) { echo render_card($it); } ?>
+                    <?php foreach ($items as $it) { echo render_card($it, $section); } ?>
                 </div>
                 <p class="empty" id="emptyMsg" hidden>Aucun résultat.</p>
             <?php else: ?>

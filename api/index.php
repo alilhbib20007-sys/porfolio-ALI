@@ -9,6 +9,7 @@ $routes = [
     'mini-projets'  => 'mini-projets.php',
     'td'            => 'td.php',
     'controles'     => 'controles.php',
+    'detail'        => 'detail.php',
     '404'           => '404.php',
 ];
 
@@ -23,5 +24,6 @@ if ($page === '404') {
 require API_DIR . '/includes/config.php';
 require API_DIR . '/includes/functions.php';
 
-$active = $page;
+// Sur une page de détail, l'onglet actif du menu est la section (td, mini-projets...)
+$active = $page === 'detail' ? (string) ($_GET['section'] ?? '') : $page;
 require API_DIR . '/pages/' . $routes[$page];

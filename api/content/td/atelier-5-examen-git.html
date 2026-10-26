@@ -1,0 +1,64 @@
+<h2 id="partie-2-gestion-de-version-avec-git-7-points">Partie 2 : gestion de version avec Git (7 points)</h2>
+<blockquote>
+<p>Chaque réponse donne toutes les commandes, y compris la création des dossiers et les changements de dossier. Les commandes ont réellement été exécutées pour construire ce dépôt.</p>
+</blockquote>
+<h3 id="creer-depot_local-y-entrer-et-linitialiser-comme-depot-git-1-pt">1. Créer <code>depot_local</code>, y entrer et l’initialiser comme dépôt Git (1 pt)</h3>
+<pre class="bash"><code>mkdir depot_local
+cd depot_local
+git init</code></pre>
+<h3 id="lier-depot_local-a-un-depot-distant-1-pt">2. Lier <code>depot_local</code> à un dépôt distant (1 pt)</h3>
+<pre class="bash"><code>git remote add origin https://github.com/alilhbib20007-sys/depot_local.git
+git remote -v</code></pre>
+<h3 id="stager-les-trois-fichiers-vides-et-commiter-1-pt">3. Stager les trois fichiers vides et commiter (1 pt)</h3>
+<p>Fichiers créés avec VS Code : <code>produit.html</code>, <code>style.css</code>, <code>script.js</code> (on peut aussi faire <code>touch produit.html style.css script.js</code>).</p>
+<pre class="bash"><code>git add produit.html style.css script.js      # ou : git add .
+git commit -m &quot;Version initiale : produit.html, style.css, script.js&quot;</code></pre>
+<h3 id="creer-la-branche-gestion-produits-et-basculer-dessus-1-pt">4. Créer la branche « Gestion produits » et basculer dessus (1 pt)</h3>
+<p>Un nom de branche Git ne peut pas contenir d’espace, donc on écrit <code>gestion-produits</code> :</p>
+<pre class="bash"><code>git checkout -b gestion-produits
+# équivalent : git branch gestion-produits  puis  git checkout gestion-produits
+# ou encore  : git switch -c gestion-produits</code></pre>
+<h3 id="commiter-les-modifications-revenir-sur-master-et-fusionner-1-pt">5. Commiter les modifications, revenir sur <code>master</code> et fusionner (1 pt)</h3>
+<pre class="bash"><code>git add .
+git commit -m &quot;Gestion produits : contenu de produit.html, style.css et script.js&quot;
+git checkout master
+git merge gestion-produits</code></pre>
+<h3 id="log-sur-une-ligne-informations-de-origin-puis-push-1-pt">6. Log sur une ligne, informations de <code>origin</code>, puis push (1 pt)</h3>
+<pre class="bash"><code>git log --oneline
+git remote show origin        # informations détaillées sur le dépôt origin (ou : git remote -v)
+git push -u origin master</code></pre>
+<p>Résultat réel de <code>git log --oneline</code> avant le push :</p>
+<pre class="text"><code>c84c947 Ajout des réponses de l&#39;atelier 5
+6b6c244 feature-xyz : afficher le nombre de produits
+8473185 Gestion produits : contenu de produit.html, style.css et script.js
+3ed5b43 Version initiale : produit.html, style.css, script.js</code></pre>
+<h3 id="effacer-lhistorique-depuis-le-premier-commit-et-supprimer-les-modifications-1-pt">7. Effacer l’historique depuis le premier commit et supprimer les modifications (1 pt)</h3>
+<p>Solution : revenir au premier commit avec un <strong>reset dur</strong>, puis forcer la mise à jour du dépôt distant.</p>
+<pre class="bash"><code>git log --oneline                     # repérer l&#39;identifiant du premier commit, ex. a1b2c3d
+git reset --hard a1b2c3d              # supprime les commits suivants ET les modifications des fichiers
+git push --force origin master        # le distant avait les anciens commits : il faut forcer</code></pre>
+<p>Variante sans copier l’identifiant : <code>git reset --hard $(git rev-list --max-parents=0 HEAD)</code>.</p>
+<p>⚠️ <code>--hard</code> efface définitivement les modifications non sauvegardées, et <code>--force</code> réécrit l’historique partagé : à utiliser seulement si personne d’autre ne travaille sur la branche. Pour annuler sans réécrire l’historique, on utiliserait plutôt <code>git revert</code>.</p>
+<p><em>(Cette question demande seulement de proposer une solution. Elle n’a pas été exécutée sur ce dépôt, pour garder l’historique des autres questions.)</em></p>
+<hr />
+<h2 id="partie-3-exercice-git-10-points-2-points-par-question">Partie 3 : exercice Git (10 points, 2 points par question)</h2>
+<h3 id="quelle-commande-permet-de-voir-lhistorique-des-commits">1. Quelle commande permet de voir l’historique des commits ?</h3>
+<pre class="bash"><code>git log
+git log --oneline     # version courte, une ligne par commit</code></pre>
+<h3 id="comment-creer-une-branche-feature-xyz-a-partir-de-main">2. Comment créer une branche <code>feature-xyz</code> à partir de <code>main</code> ?</h3>
+<pre class="bash"><code>git checkout main
+git checkout -b feature-xyz
+# ou en une seule commande : git checkout -b feature-xyz main</code></pre>
+<h3 id="quelle-commande-fusionne-feature-xyz-dans-main">3. Quelle commande fusionne <code>feature-xyz</code> dans <code>main</code> ?</h3>
+<p>On se place d’abord sur la branche qui reçoit la fusion :</p>
+<pre class="bash"><code>git checkout main
+git merge feature-xyz</code></pre>
+<h3 id="annuler-ses-modifications-locales-sur-un-fichier-avant-de-commiter">4. Annuler ses modifications locales sur un fichier avant de commiter ?</h3>
+<pre class="bash"><code>git restore nom_du_fichier
+# ancienne syntaxe : git checkout -- nom_du_fichier</code></pre>
+<p>Si le fichier a déjà été ajouté au staging : <code>git restore --staged nom_du_fichier</code> puis <code>git restore nom_du_fichier</code>.</p>
+<h3 id="comment-verifier-letat-actuel-du-depot-fichiers-modifies-ajoutes-en-attente">5. Comment vérifier l’état actuel du dépôt (fichiers modifiés, ajoutés, en attente) ?</h3>
+<pre class="bash"><code>git status</code></pre>
+<blockquote>
+<p>Dans ce dépôt, la branche principale s’appelle <code>master</code>. Les questions 2 et 3 ont donc été pratiquées avec <code>master</code> (<code>git checkout -b feature-xyz master</code>, puis <code>git merge feature-xyz</code>).</p>
+</blockquote>

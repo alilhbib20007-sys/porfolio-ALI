@@ -1,0 +1,84 @@
+<h2 id="partie-1-depot-distant-et-premiere-version-developpeur-1">Partie 1 : dépôt distant et première version (Développeur 1)</h2>
+<pre class="bash"><code># dépôt &quot;atelier-collaboratif&quot; créé vide sur GitHub (sans README, .gitignore ni licence)
+git clone https://github.com/alilhbib20007-sys/atelier-collaboratif.git
+cd atelier-collaboratif
+git status
+git branch
+git remote -v
+
+# création de index.html
+git status
+git add index.html
+git status
+git commit -m &quot;Ajouter la page d&#39;accueil&quot;
+git branch -M main
+git push origin main</code></pre>
+<p><strong>Quel est le rôle de <code>git clone</code> ?</strong> Copier un dépôt distant sur la machine locale : les fichiers, tout l’historique et les références des branches distantes. Il configure aussi automatiquement le dépôt distant sous le nom <code>origin</code>.</p>
+<p><strong>Quel dossier a été créé sur votre machine ?</strong> Un dossier <code>atelier-collaboratif</code> (du nom du dépôt), qui contient le dossier caché <code>.git</code>.</p>
+<p><strong>Que représente <code>origin</code> dans le résultat de <code>git remote -v</code> ?</strong> C’est le nom par défaut donné au dépôt distant cloné (ici le dépôt GitHub). <code>git remote -v</code> affiche son URL pour <code>fetch</code> (récupérer) et <code>push</code> (envoyer).</p>
+<p><strong>Quelle est la différence entre le dépôt local et le dépôt distant ?</strong> Le dépôt local est sur mon ordinateur : je peux y travailler et faire des commits sans connexion. Le dépôt distant est hébergé sur GitHub : il sert de référence commune à l’équipe. Les deux ne se synchronisent que quand on le demande (<code>git push</code> pour envoyer, <code>git pull</code> / <code>git fetch</code> pour récupérer).</p>
+<p><strong>Pourquoi exécuter <code>git add</code> avant <code>git commit</code> ?</strong> Parce que <code>git commit</code> n’enregistre que ce qui se trouve dans la zone de staging. <code>git add</code> sert à choisir les modifications à inclure.</p>
+<p><strong>Que représente le commit créé ?</strong> Une version enregistrée du projet, ici la première avec la page d’accueil. Il a un identifiant unique (hash), un auteur, une date et un message.</p>
+<p><strong>Quel est le rôle de <code>git push</code> ?</strong> Envoyer les commits locaux de la branche vers le dépôt distant (<code>origin</code>).</p>
+<p><strong>Que constatez-vous sur GitHub après le push ?</strong> Le dépôt n’est plus vide : on voit le fichier <code>index.html</code>, la branche <code>main</code> et le commit « Ajouter la page d’accueil ».</p>
+<hr />
+<h2 id="partie-2-branche-contact-developpeur-1">Partie 2 : branche <code>contact</code> (Développeur 1)</h2>
+<pre class="bash"><code>git checkout -b contact
+git branch                        # * contact
+# création de contact.html
+git add contact.html
+git commit -m &quot;Ajouter la page contact&quot;
+git push --set-upstream origin contact</code></pre>
+<p>La branche <code>contact</code> apparaît ensuite sur GitHub.</p>
+<hr />
+<h2 id="partie-3-inviter-le-deuxieme-developpeur-developpeur-1">Partie 3 : inviter le deuxième développeur (Développeur 1)</h2>
+<p>Sur GitHub : <strong>Settings → Collaborators → Add people</strong>, saisir le compte du Développeur 2, qui accepte l’invitation reçue par email. Il obtient alors le droit de pousser sur le dépôt.</p>
+<p><em>(Non exécuté ici : un seul compte GitHub disponible.)</em></p>
+<hr />
+<h2 id="partie-4-branche-promotion-developpeur-2">Partie 4 : branche <code>promotion</code> (Développeur 2)</h2>
+<pre class="bash"><code>git clone https://github.com/alilhbib20007-sys/atelier-collaboratif.git dev2-atelier-collaboratif
+cd dev2-atelier-collaboratif
+git branch          # * main
+git branch -r       # origin/HEAD -&gt; origin/main, origin/contact, origin/main
+git remote -v
+
+git checkout main
+git checkout -b promotion
+# création de promotion.html
+git add promotion.html
+git commit -m &quot;Ajouter la page promotion&quot;
+git push --set-upstream origin promotion</code></pre>
+<p>Constats : la branche locale est <code>main</code> ; <code>origin/main</code> et <code>origin/contact</code> sont présentes en distant ; il n’y a <strong>pas</strong> de branche locale <code>contact</code> (le clone ne crée qu’une branche locale, la branche par défaut) ; <code>index.html</code> est bien présent.</p>
+<hr />
+<h2 id="partie-5-pull-requests-et-integration">Partie 5 : Pull Requests et intégration</h2>
+<ul>
+<li><strong>PR « Ajouter la page Contact »</strong> : <code>contact</code> → <code>main</code>, puis fusionnée (<em>Merge pull request</em>).</li>
+<li><strong>PR « Ajouter la page Promotion »</strong> : <code>promotion</code> → <code>main</code>, puis fusionnée.</li>
+</ul>
+<p>Synchronisation des deux dépôts locaux :</p>
+<pre class="bash"><code>git checkout main
+git pull origin main</code></pre>
+<p>La branche <code>main</code> contient maintenant <code>index.html</code>, <code>contact.html</code> et <code>promotion.html</code>.</p>
+<p>Pull Requests réelles : <a href="https://github.com/alilhbib20007-sys/atelier-collaboratif/pull/1">#1 Ajouter la page Contact</a> et <a href="https://github.com/alilhbib20007-sys/atelier-collaboratif/pull/2">#2 Ajouter la page Promotion</a>.</p>
+<p>Historique final (<code>git log --oneline --graph --all</code>) :</p>
+<pre class="text"><code>* f8d6878 Ajouter les réponses aux questions de l&#39;atelier
+*   d77fa1f Merge pull request #2 from alilhbib20007-sys/promotion
+|\
+| * 7fd4678 Ajouter la page promotion
+* |   380df3c Merge pull request #1 from alilhbib20007-sys/contact
+|\ \
+| |/
+|/|
+| * 89e6f27 Ajouter la page contact
+|/
+* 083641b Ajouter la page d&#39;accueil</code></pre>
+<hr />
+<h2 id="questions-de-synthese">7. Questions de synthèse</h2>
+<p><strong>1. Différence entre dépôt local et dépôt distant ?</strong> Le local est la copie de travail sur la machine du développeur (avec son propre historique) ; le distant est la copie partagée hébergée sur GitHub, qui sert de point de rencontre de l’équipe.</p>
+<p><strong>2. Pourquoi chaque développeur travaille-t-il sur une branche distincte ?</strong> Pour développer sa fonctionnalité de façon isolée, sans casser la branche principale ni gêner le travail de l’autre. Les changements ne rejoignent <code>main</code> qu’une fois terminés et relus.</p>
+<p><strong>3. Rôle de <code>origin</code> dans <code>git push origin contact</code> ?</strong> Il désigne le dépôt distant de destination (le dépôt GitHub configuré lors du clone). <code>contact</code> est la branche à envoyer.</p>
+<p><strong>4. Pourquoi <code>--set-upstream</code> lors du premier push d’une branche ?</strong> Pour lier la branche locale à la branche distante du même nom. Ensuite, un simple <code>git push</code> ou <code>git pull</code> suffit, sans répéter <code>origin contact</code>, et <code>git status</code> indique l’avance ou le retard par rapport au distant.</p>
+<p><strong>5. Différence entre <code>git push</code> et une Pull Request ?</strong> <code>git push</code> est une commande Git qui envoie des commits vers le dépôt distant. Une Pull Request est une fonctionnalité de GitHub : une demande pour fusionner une branche dans une autre, avec relecture, commentaires et validation avant la fusion.</p>
+<p><strong>6. Une Pull Request fusionne-t-elle automatiquement la branche ?</strong> Non. Créer une PR ouvre seulement une demande. La fusion n’a lieu que lorsque quelqu’un clique sur <strong>Merge pull request</strong> (après relecture). La PR peut aussi être refusée ou fermée sans fusion.</p>
+<p><strong>7. Pourquoi récupérer la branche principale après une fusion ?</strong> La fusion a été faite sur GitHub : le <code>main</code> local de chaque développeur est donc en retard. <code>git pull origin main</code> met le dépôt local à jour pour repartir de la dernière version et éviter des conflits plus tard.</p>
+<p><strong>8. Combien de branches ont été créées et quelles sont leurs fonctions ?</strong> Trois branches : - <code>main</code> (ou <code>master</code>) : branche principale, version stable du site ; - <code>contact</code> : développement de la page Contact (Développeur 1) ; - <code>promotion</code> : développement de la page Promotion (Développeur 2).</p>

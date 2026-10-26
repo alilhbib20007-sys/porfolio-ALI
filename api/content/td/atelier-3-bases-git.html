@@ -1,0 +1,103 @@
+<h2 id="partie-1-configuration-et-creation-du-projet">Partie 1 : configuration et création du projet</h2>
+<p>Commandes exécutées :</p>
+<pre class="bash"><code>git --version
+git config --global user.name &quot;Ali EL Habib&quot;
+git config --global user.email &quot;mon.email@exemple.com&quot;
+mkdir atelier-git
+cd atelier-git
+git init
+git status</code></pre>
+<p><strong>À quoi sert la commande <code>git init</code> ?</strong> Elle transforme le dossier courant en dépôt Git : elle crée le dossier caché <code>.git</code>, qui contiendra tout l’historique (commits, branches, configuration locale). Avant <code>git init</code>, Git ignore complètement le dossier.</p>
+<p><strong>Quel est le rôle des commandes <code>git config</code> ?</strong> Elles enregistrent l’identité de l’auteur (nom et email). Git écrit ces informations dans chaque commit pour savoir <em>qui</em> a fait <em>quoi</em>. Avec <code>--global</code>, la configuration vaut pour tous les dépôts de l’ordinateur.</p>
+<p><strong>Que signifie l’expression <em>working directory</em> ?</strong> C’est le répertoire de travail : les fichiers tels qu’ils sont actuellement sur le disque, ceux qu’on ouvre et modifie dans l’éditeur. Les changements faits ici ne sont pas encore enregistrés dans Git tant qu’on ne les a pas ajoutés (<code>git add</code>) puis validés (<code>git commit</code>).</p>
+<hr />
+<h2 id="partie-2-suivi-des-fichiers-et-premier-commit">Partie 2 : suivi des fichiers et premier commit</h2>
+<pre class="bash"><code># création de index.html avec le titre « Mon premier projet Git »
+git status                                   # index.html apparaît en &quot;Untracked&quot;
+git add index.html
+git status                                   # index.html apparaît en &quot;Changes to be committed&quot;
+git commit -m &quot;Initialisation du projet&quot;
+git log</code></pre>
+<p><strong>Quelle est la différence entre <code>git add</code> et <code>git commit</code> ?</strong> <code>git add</code> place les modifications dans la zone de staging : on choisit ce qui fera partie de la prochaine version. <code>git commit</code> enregistre ensuite cette sélection comme une version définitive dans l’historique, avec un identifiant, un auteur, une date et un message.</p>
+<p><strong>Quel est le rôle de la zone de staging ?</strong> C’est une zone intermédiaire entre le répertoire de travail et l’historique. Elle permet de préparer précisément le contenu d’un commit, par exemple n’enregistrer que deux fichiers sur cinq modifiés, pour obtenir des commits cohérents.</p>
+<p><strong>À quoi sert l’option <code>-m</code> ?</strong> Elle donne le message du commit directement dans la commande. Sans <code>-m</code>, Git ouvre un éditeur de texte pour saisir le message.</p>
+<hr />
+<h2 id="partie-3-modifier-un-fichier">Partie 3 : modifier un fichier</h2>
+<pre class="bash"><code># ajout d&#39;un paragraphe de présentation dans index.html
+git status          # index.html est &quot;modified&quot;
+git diff            # montre les lignes ajoutées (+) dans le répertoire de travail
+git add index.html
+git diff --staged   # montre ce qui est dans la zone de staging
+git commit -m &quot;Ajout de la présentation&quot;
+git log --oneline</code></pre>
+<p><strong>Que montre <code>git diff</code> ?</strong> Les différences ligne par ligne entre le répertoire de travail et la zone de staging, c’est-à-dire les modifications <strong>pas encore ajoutées</strong> avec <code>git add</code>. Les lignes ajoutées commencent par <code>+</code> et les lignes supprimées par <code>-</code>.</p>
+<p><strong>Quelle est la différence entre <code>git diff</code> et <code>git diff --staged</code> ?</strong> - <code>git diff</code> : working directory comparé à la zone de staging (changements non ajoutés). - <code>git diff --staged</code> : zone de staging comparée au dernier commit (ce qui partira dans le prochain commit).</p>
+<p>Après <code>git add index.html</code>, <code>git diff</code> n’affiche plus rien, alors que <code>git diff --staged</code> affiche le paragraphe ajouté.</p>
+<p><strong>Pourquoi créer plusieurs commits au lieu d’un seul ?</strong> Chaque commit représente une étape logique. On obtient un historique lisible, on peut retrouver quand et pourquoi une modification a été faite, et on peut annuler une seule étape sans perdre tout le reste.</p>
+<hr />
+<h2 id="partie-4-gerer-plusieurs-fichiers">Partie 4 : gérer plusieurs fichiers</h2>
+<pre class="bash"><code># création de style.css et README.md
+git status                          # les deux fichiers sont &quot;Untracked&quot;
+git add style.css README.md         # deux fichiers en une seule commande
+git status
+git commit -m &quot;Ajout du style et de la documentation&quot;
+git log --oneline</code></pre>
+<p><strong>Quelle est la différence entre un fichier <em>tracked</em> et <em>untracked</em> ?</strong> - <strong>Tracked (suivi)</strong> : le fichier fait déjà partie d’au moins un commit (ou a été ajouté au staging). Git surveille ses modifications. - <strong>Untracked (non suivi)</strong> : le fichier existe dans le dossier mais Git ne l’a jamais enregistré. Il ne sera pas versionné tant qu’on ne fait pas <code>git add</code>.</p>
+<p><strong>Peut-on ajouter plusieurs fichiers avec une seule commande <code>git add</code> ?</strong> Oui. On peut les lister (<code>git add style.css README.md</code>), utiliser un motif (<code>git add *.css</code>) ou tout ajouter (<code>git add .</code>).</p>
+<p><strong>À quoi sert le fichier <code>README.md</code> ?</strong> C’est la documentation d’accueil du projet, écrite en Markdown. Elle explique ce qu’est le projet, comment l’utiliser ou l’installer. GitHub l’affiche automatiquement sur la page du dépôt.</p>
+<hr />
+<h2 id="partie-5-bilan-et-verification">Partie 5 : bilan et vérification</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Commande</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>git init</code></td>
+<td>Crée un nouveau dépôt Git (dossier <code>.git</code>) dans le dossier courant.</td>
+</tr>
+<tr class="even">
+<td><code>git status</code></td>
+<td>Affiche l’état du dépôt : branche, fichiers modifiés, en staging ou non suivis.</td>
+</tr>
+<tr class="odd">
+<td><code>git add</code></td>
+<td>Ajoute des modifications à la zone de staging pour le prochain commit.</td>
+</tr>
+<tr class="even">
+<td><code>git commit</code></td>
+<td>Enregistre le contenu du staging comme une nouvelle version dans l’historique.</td>
+</tr>
+<tr class="odd">
+<td><code>git log</code></td>
+<td>Affiche l’historique des commits (auteur, date, message, identifiant).</td>
+</tr>
+<tr class="even">
+<td><code>git diff</code></td>
+<td>Montre les différences ligne par ligne entre deux états des fichiers.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="livrable">Livrable</h3>
+<ul>
+<li>Dossier <code>atelier-git</code> contenant <code>index.html</code>, <code>style.css</code> et <code>README.md</code> : fait.</li>
+<li>Dépôt Git local initialisé : fait (puis publié sur GitHub).</li>
+<li>Au moins trois commits avec des messages explicites :
+<ol type="1">
+<li><code>Initialisation du projet</code></li>
+<li><code>Ajout de la présentation</code></li>
+<li><code>Ajout du style et de la documentation</code></li>
+</ol></li>
+<li>Historique obtenu avec <code>git log --oneline</code> (exécution réelle) :</li>
+</ul>
+<pre class="text"><code>f4a2099 Ajout des réponses de l&#39;atelier et de l&#39;historique
+01c91d4 Ajout du style et de la documentation
+c5806c3 Ajout de la présentation
+f83642c Initialisation du projet</code></pre>

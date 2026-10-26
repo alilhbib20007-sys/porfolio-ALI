@@ -1,0 +1,180 @@
+<p>Application de gestion des stagiaires :</p>
+<ul>
+<li><strong>Page 1 · Inscription</strong> (<code>index.html</code>) : nom, prénom, ville et photo. Le serveur envoie la photo à Cloudinary, puis enregistre le stagiaire dans MySQL.</li>
+<li><strong>Page 2 · Liste</strong> (<code>liste.html</code>) : lit les stagiaires depuis Aiven et affiche leurs photos hébergées sur Cloudinary.</li>
+</ul>
+<h2 id="architecture">Architecture</h2>
+<pre><code>Navigateur (index.html / liste.html)
+        │  fetch()
+        ▼
+Vercel : fonctions PHP (api/inscrire.php, api/liste.php)
+        │                         │
+        ▼                         ▼
+Aiven MySQL                 Cloudinary
+(nom, prénom, ville,        (fichiers image,
+ URL de la photo)            URL sécurisée https)</code></pre>
+<ul>
+<li><strong>Aiven</strong> stocke les données relationnelles.</li>
+<li><strong>Cloudinary</strong> stocke les fichiers image.</li>
+<li><strong>PHP</strong> relie le formulaire, la base de données et le service d’images.</li>
+<li><strong>Vercel</strong> sert les pages HTML statiques et exécute les fonctions PHP (<code>vercel-php@0.9.0</code>).</li>
+<li><strong>GitHub</strong> conserve le code et déclenche le déploiement automatique sur Vercel.</li>
+</ul>
+<h2 id="structure-du-projet">Structure du projet</h2>
+<pre><code>atelier-stagiaires/
+├── index.html          Formulaire d&#39;inscription
+├── liste.html          Affichage des stagiaires
+├── style.css           Style commun aux deux pages
+├── composer.json       Dépendance Cloudinary (cloudinary/cloudinary_php ^3.0)
+├── vercel.json         Runtime PHP pour api/*.php
+├── .gitignore          vendor/ et fichiers .env
+├── api/
+│   ├── inscrire.php    Écriture : photo → Cloudinary, stagiaire → MySQL
+│   └── liste.php       Lecture : SELECT des stagiaires, réponse JSON
+├── config/
+│   ├── db.php          Connexion PDO à Aiven (TLS avec ca.pem)
+│   └── http.php        Réponses JSON et messages d&#39;erreur
+├── certs/
+│   └── ca.pem          Certificat CA d&#39;Aiven (à ajouter)
+└── sql/
+    └── schema.sql      CREATE TABLE stagiaires</code></pre>
+<h2 id="mise-en-place">Mise en place</h2>
+<h3 id="aiven-base-mysql">1. Aiven : base MySQL</h3>
+<ol type="1">
+<li>Créer un service MySQL dans la <a href="https://console.aiven.io/">console Aiven</a>, puis attendre qu’il soit <em>Running</em>.</li>
+<li>Relever : hostname, port, base (<code>defaultdb</code>), utilisateur (<code>avnadmin</code>), mot de passe.</li>
+<li>Télécharger le <strong>CA certificate</strong> et l’enregistrer dans <code>certs/ca.pem</code>.</li>
+<li>Créer la table (depuis <code>C:\wamp64\bin\mysql\mysql8.2.0\bin</code>) :</li>
+</ol>
+<pre class="bash"><code>mysql -h &lt;hostname&gt; -P &lt;port&gt; -u avnadmin -p --ssl-mode=REQUIRED defaultdb</code></pre>
+<pre class="sql"><code>CREATE TABLE stagiaires (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    ville VARCHAR(100) NOT NULL,
+    photo VARCHAR(500) NOT NULL,
+    date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+DESCRIBE stagiaires;</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th>Champ</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>id</code></td>
+<td>Identifiant généré automatiquement</td>
+</tr>
+<tr class="even">
+<td><code>nom</code></td>
+<td>Nom du stagiaire</td>
+</tr>
+<tr class="odd">
+<td><code>prenom</code></td>
+<td>Prénom du stagiaire</td>
+</tr>
+<tr class="even">
+<td><code>ville</code></td>
+<td>Ville de résidence</td>
+</tr>
+<tr class="odd">
+<td><code>photo</code></td>
+<td>URL de l’image hébergée sur Cloudinary</td>
+</tr>
+<tr class="even">
+<td><code>date_inscription</code></td>
+<td>Date d’inscription</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cloudinary">2. Cloudinary</h3>
+<p>Créer un compte, ouvrir le tableau de bord et repérer le <strong>Cloud name</strong>, l’<strong>API Key</strong> et l’<strong>API Secret</strong>. La variable <code>CLOUDINARY_URL</code> a la forme :</p>
+<pre><code>cloudinary://&lt;API_KEY&gt;:&lt;API_SECRET&gt;@&lt;CLOUD_NAME&gt;</code></pre>
+<p>Les photos sont rangées dans le dossier <code>stagiaires</code> de la Media Library.</p>
+<h3 id="dependances-en-local">3. Dépendances (en local)</h3>
+<pre class="bash"><code>composer install
+composer dump-autoload</code></pre>
+<ul>
+<li><code>composer install</code> installe les bibliothèques dans <code>vendor/</code>.</li>
+<li><code>composer dump-autoload</code> actualise l’index des classes pour que PHP les trouve automatiquement.</li>
+</ul>
+<p><code>vendor/</code> n’est <strong>pas</strong> envoyé sur GitHub (<code>.gitignore</code>) : Vercel réinstalle les dépendances à partir de <code>composer.json</code> lors du déploiement. Si <code>vendor/</code> avait déjà été commité :</p>
+<pre class="bash"><code>git rm -r --cached vendor
+git add .gitignore composer.json composer.lock
+git commit -m &quot;Ignorer vendor et préparer le déploiement&quot;
+git push</code></pre>
+<h3 id="vercel-variables-denvironnement">4. Vercel : variables d’environnement</h3>
+<p><strong>Settings → Environment Variables</strong> (environnement <em>Production</em>), puis redéployer :</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>DB_HOST</code></td>
+<td>hostname Aiven, ex. <code>mysql-xxxx-project-xxxx.c.aivencloud.com</code></td>
+</tr>
+<tr class="even">
+<td><code>DB_PORT</code></td>
+<td>port Aiven, ex. <code>15880</code></td>
+</tr>
+<tr class="odd">
+<td><code>DB_NAME</code></td>
+<td><code>defaultdb</code></td>
+</tr>
+<tr class="even">
+<td><code>DB_USER</code></td>
+<td><code>avnadmin</code></td>
+</tr>
+<tr class="odd">
+<td><code>DB_PASSWORD</code></td>
+<td>mot de passe affiché dans Aiven</td>
+</tr>
+<tr class="even">
+<td><code>CLOUDINARY_URL</code></td>
+<td><code>cloudinary://API_KEY:API_SECRET@CLOUD_NAME</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="fonctionnement-des-fichiers-php">Fonctionnement des fichiers PHP</h2>
+<h3 id="apiinscrire.php-ecriture"><code>api/inscrire.php</code> (écriture)</h3>
+<ol type="1">
+<li>Reçoit les données du formulaire (<code>$_POST</code>, <code>$_FILES</code>).</li>
+<li>Vérifie les champs (obligatoires, 100 caractères max) et le fichier (type réel JPG/PNG/WEBP/GIF, 4 Mo max).</li>
+<li>Envoie la photo à Cloudinary (<code>UploadApi::upload</code>, dossier <code>stagiaires</code>).</li>
+<li>Récupère l’URL sécurisée <code>secure_url</code> (https).</li>
+<li>Insère le stagiaire avec une <strong>requête préparée</strong> (protection contre l’injection SQL).</li>
+<li>Renvoie une réponse JSON (<code>201</code> si succès, <code>422</code> si données invalides, <code>500</code> si erreur serveur).</li>
+</ol>
+<h3 id="apiliste.php-lecture"><code>api/liste.php</code> (lecture)</h3>
+<p>Exécute <code>SELECT ... FROM stagiaires ORDER BY date_inscription DESC</code> et renvoie <code>{ succes, total, stagiaires: [...] }</code> en JSON. <code>liste.html</code> consomme cette API et charge chaque photo depuis son URL Cloudinary.</p>
+<h3 id="configdb.php"><code>config/db.php</code></h3>
+<ul>
+<li><code>getenv()</code> récupère les paramètres configurés dans Vercel ;</li>
+<li>PDO établit la connexion à MySQL avec <code>utf8mb4</code> (caractères accentués) ;</li>
+<li><code>ERRMODE_EXCEPTION</code> permet de détecter les erreurs SQL ;</li>
+<li>la connexion est chiffrée en TLS avec vérification du certificat <code>certs/ca.pem</code> (on ne désactive jamais cette vérification pour masquer une erreur).</li>
+</ul>
+<h2 id="pourquoi-ne-pas-enregistrer-les-photos-dans-le-dossier-public-de-vercel">Pourquoi ne pas enregistrer les photos dans le dossier <code>public</code> de Vercel ?</h2>
+<ul>
+<li>Le système de fichiers d’une fonction Vercel est <strong>en lecture seule et éphémère</strong> : seul <code>/tmp</code> est accessible en écriture, et il est effacé entre deux exécutions. Une photo écrite sur le serveur disparaîtrait.</li>
+<li>Les fichiers du site sont figés <strong>au moment du déploiement</strong>. Un fichier ajouté ensuite n’est pas publié, et un nouveau déploiement repart du contenu de GitHub.</li>
+<li>Chaque requête peut être traitée par une instance différente : il n’existe pas de disque partagé entre elles.</li>
+</ul>
+<p>On sépare donc les rôles : <strong>Cloudinary</strong> conserve durablement les images (et les sert via un CDN), <strong>MySQL</strong> ne stocke que leur URL.</p>
+<h2 id="securite">Sécurité</h2>
+<ul>
+<li>Les secrets (mot de passe MySQL, clé Cloudinary) restent dans les variables d’environnement de Vercel, jamais dans le code ni sur GitHub.</li>
+<li><code>ca.pem</code> est un certificat public : il peut être versionné.</li>
+<li>Les données sont insérées avec des requêtes préparées et affichées avec <code>textContent</code> (pas d’injection HTML).</li>
+</ul>

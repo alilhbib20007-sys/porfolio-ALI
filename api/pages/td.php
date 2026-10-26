@@ -6,7 +6,8 @@ require API_DIR . '/includes/header.php';
 render_listing(
     'Mes TD',
     "Retrouvez ici tous mes travaux dirigés, du plus ancien au plus récent.",
-    load_data('td')
+    load_data('td'),
+    'td'
 );
 
 require API_DIR . '/includes/footer.php';
