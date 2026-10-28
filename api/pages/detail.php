@@ -72,7 +72,7 @@ require API_DIR . '/includes/header.php';
                     <a class="btn btn-primary btn-sm" href="<?= e($it['lien']) ?>" target="_blank" rel="noopener">Code source sur GitHub ↗</a>
                 <?php endif; ?>
                 <?php if (!empty($it['demo'])): ?>
-                    <a class="btn btn-outline btn-sm" href="<?= e($it['demo']) ?>" target="_blank" rel="noopener">Voir l'application ↗</a>
+                    <a class="btn btn-primary btn-sm" href="<?= e($it['demo']) ?>" target="_blank" rel="noopener">Voir l'application en ligne ↗</a>
                 <?php endif; ?>
                 <a class="btn btn-outline btn-sm" href="/<?= e($section) ?>">← Retour aux <?= e($labels[$section]) ?></a>
             </div>

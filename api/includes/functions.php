@@ -114,6 +114,9 @@ function render_card(array $it, $section = '')
                 <?php if (!empty($it['correction'])): ?>
                     <a class="btn btn-outline btn-sm" href="<?= e($it['correction']) ?>" target="_blank" rel="noopener">Correction</a>
                 <?php endif; ?>
+                <?php if (!empty($it['demo'])): ?>
+                    <a class="btn btn-outline btn-sm" href="<?= e($it['demo']) ?>" target="_blank" rel="noopener">Voir l'application ↗</a>
+                <?php endif; ?>
                 <?php if (!empty($it['lien'])): ?>
                     <a class="btn btn-outline btn-sm" href="<?= e($it['lien']) ?>" target="_blank" rel="noopener">Code source</a>
                 <?php endif; ?>

@@ -18,6 +18,7 @@ return [
         'pdf'         => null,
         'slug'        => 'atelier-6-stagiaires',
         'lien'        => 'https://github.com/alilhbib20007-sys/atelier-stagiaires',
+        'demo'        => 'https://atelier-stagiaires-jade.vercel.app',
         'tags'        => ['PHP', 'MySQL', 'Aiven', 'Cloudinary', 'Vercel'],
     ],
 ];
