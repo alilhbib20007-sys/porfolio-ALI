@@ -67,7 +67,7 @@ require API_DIR . '/includes/header.php';
                     <a class="btn btn-primary btn-sm" href="<?= e($it['demo']) ?>" target="_blank" rel="noopener">Voir l'application en ligne ↗</a>
                 <?php endif; ?>
                 <?php if (!empty($it['lien'])): ?>
-                    <a class="btn btn-<?= empty($it['demo']) ? 'primary' : 'outline' ?> btn-sm" href="<?= e($it['lien']) ?>" target="_blank" rel="noopener">Code source sur GitHub ↗</a>
+                    <a class="btn btn-<?= empty($it['demo']) ? 'primary' : 'outline' ?> btn-sm" href="<?= e($it['lien']) ?>" target="_blank" rel="noopener">Code source sur <?= strpos($it['lien'], 'gitlab.com') !== false ? 'GitLab' : 'GitHub' ?> ↗</a>
                 <?php endif; ?>
                 <?php if (!empty($it['pdf'])): ?>
                     <a class="btn btn-outline btn-sm" href="<?= e($it['pdf']) ?>" download>⬇ Télécharger le PDF</a>

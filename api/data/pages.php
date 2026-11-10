@@ -70,4 +70,11 @@ return [
         'demo'        => 'https://atelier-stagiaires-jade.vercel.app',
         'tags'        => ['PHP', 'MySQL', 'Aiven', 'Cloudinary', 'Vercel'],
     ],
+    'atelier-7-gitlab-sonarqube' => [
+        'titre'       => 'Atelier 7 - Pipeline GitLab CI/CD + SonarQube Cloud',
+        'description' => "Mini-site HTML/CSS/JavaScript analysé par SonarQube Cloud dans un pipeline GitLab CI/CD : la V1 correcte passe le Quality Gate et se déploie sur GitLab Pages, la V2 volontairement vulnérable (XSS DOM) est bloquée avant le déploiement.",
+        'images'      => ['/images/td/at7-v1-pipeline.jpg', '/images/td/at7-v1-sonar.jpg', '/images/td/at7-v2-pipelines.jpg', '/images/td/at7-v2-sonar.jpg', '/images/td/at7-v2-issue.jpg'],
+        'lien'        => 'https://gitlab.com/alilhbib20007/atelier-sonarqube',
+        'tags'        => ['GitLab CI/CD', 'SonarQube Cloud', 'Quality Gate', 'XSS', 'GitLab Pages'],
+    ],
 ];

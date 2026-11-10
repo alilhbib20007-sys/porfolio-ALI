@@ -1,0 +1,224 @@
+<blockquote>
+<p><strong>Projet GitLab :</strong> <a href="https://gitlab.com/alilhbib20007/atelier-sonarqube">gitlab.com/alilhbib20007/atelier-sonarqube</a> · <strong>Analyse :</strong> SonarQube Cloud, projet <code>alilhbib20007_atelier-sonarqube</code>. Atelier réalisé en conditions réelles : pipeline V1 <strong>Passed</strong>, pipeline V2 <strong>Failed</strong> sur la faille XSS.</p>
+</blockquote>
+<p>L'atelier repose sur deux versions du même mini-site :</p>
+<ul>
+<li><strong>V1</strong> : code correct → analyse SonarQube → Quality Gate <em>Passed</em> → déploiement sur GitLab Pages.</li>
+<li><strong>V2</strong> : code volontairement vulnérable → analyse SonarQube → Quality Gate <em>Failed</em> → déploiement bloqué.</li>
+</ul>
+<h2 id="sonarqube-cloud-et-le-quality-gate">SonarQube Cloud et le Quality Gate</h2>
+<p>SonarQube Cloud analyse automatiquement la qualité et la sécurité du code. Intégré à GitLab CI/CD, il intervient <strong>avant</strong> le déploiement :</p>
+<ol type="1">
+<li>Le développeur pousse son code sur GitLab.</li>
+<li>GitLab déclenche le pipeline CI/CD.</li>
+<li>Le scanner analyse le code et envoie les résultats à SonarQube Cloud.</li>
+<li>SonarQube calcule les métriques et évalue le <strong>Quality Gate</strong>.</li>
+<li>Si le Quality Gate échoue, le job échoue et le déploiement ne s'exécute pas.</li>
+</ol>
+<table>
+<thead>
+<tr class="header">
+<th>Métrique</th>
+<th>Ce qu'elle mesure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bugs (fiabilité)</td>
+<td>Défauts pouvant provoquer un comportement incorrect</td>
+</tr>
+<tr class="even">
+<td>Vulnerabilities (sécurité)</td>
+<td>Failles exploitables, par exemple une XSS via <code>innerHTML</code></td>
+</tr>
+<tr class="odd">
+<td>Security Hotspots</td>
+<td>Code sensible à vérifier par un humain</td>
+</tr>
+<tr class="even">
+<td>Code Smells (maintenabilité)</td>
+<td>Code difficile à comprendre ou à modifier</td>
+</tr>
+<tr class="odd">
+<td>Coverage</td>
+<td>Part du code exécutée par les tests (non utilisée ici)</td>
+</tr>
+<tr class="even">
+<td>Duplications</td>
+<td>Code répété</td>
+</tr>
+</tbody>
+</table>
+<p>Le <strong>Quality Gate</strong> (« Sonar way ») est l'ensemble des conditions que le code doit respecter. Avec <code>sonar.qualitygate.wait=true</code>, le scanner attend le verdict et fait échouer le job si le Quality Gate est rouge.</p>
+<h2 id="etape-1-projet-gitlab-et-application-v1">Étape 1 : projet GitLab et application V1</h2>
+<p>Projet vierge <code>atelier-sonarqube</code> créé sur GitLab, cloné en local, puis premier commit de l'application :</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;!DOCTYPE </span>html<span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span> <span class="er">lang</span><span class="ot">=</span><span class="st">&quot;fr&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">head</span><span class="dt">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">meta</span> <span class="er">charset</span><span class="ot">=</span><span class="st">&quot;UTF-8&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">meta</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;viewport&quot;</span> <span class="er">content</span><span class="ot">=</span><span class="st">&quot;width=device-width, initial-scale=1.0&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">title</span><span class="dt">&gt;</span>Atelier CI/CD<span class="dt">&lt;/</span><span class="kw">title</span><span class="dt">&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">link</span> <span class="er">rel</span><span class="ot">=</span><span class="st">&quot;stylesheet&quot;</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;style.css&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">head</span><span class="dt">&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">h1</span><span class="dt">&gt;</span>Atelier GitLab CI/CD<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">p</span> <span class="er">id</span><span class="ot">=</span><span class="st">&quot;message&quot;</span><span class="dt">&gt;</span>Version 1 : code correct<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">button</span> <span class="er">id</span><span class="ot">=</span><span class="st">&quot;btn&quot;</span><span class="dt">&gt;</span>Cliquer ici<span class="dt">&lt;/</span><span class="kw">button</span><span class="dt">&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">script</span> <span class="er">src</span><span class="ot">=</span><span class="st">&quot;script.js&quot;</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// script.js - V1 correcte</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> bouton <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&quot;btn&quot;</span>)<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> message <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&quot;message&quot;</span>)<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>bouton<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">&quot;click&quot;</span><span class="op">,</span> <span class="kw">function</span> () {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  message<span class="op">.</span><span class="at">textContent</span> <span class="op">=</span> <span class="st">&quot;Le JavaScript fonctionne correctement !&quot;</span><span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://gitlab.com/alilhbib20007/atelier-sonarqube.git</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;Création du calculateur&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<p><code>textContent</code> insère du <strong>texte</strong> : aucune balise HTML n'est interprétée, donc pas de risque d'injection.</p>
+<h2 id="etape-2-configurer-sonarqube-cloud">Étape 2 : configurer SonarQube Cloud</h2>
+<ul>
+<li>Organisation SonarQube Cloud <code>alilhbib20007</code> (plan gratuit) et projet <code>alilhbib20007_atelier-sonarqube</code>.</li>
+<li>Token d'analyse généré dans <em>My Account → Access tokens</em>.</li>
+<li>Dans GitLab, <em>Settings → CI/CD → Variables</em> : <code>SONAR_HOST_URL = https://sonarcloud.io</code> et <code>SONAR_TOKEN</code> (masquée, protégée). Le token n'apparaît jamais dans le code.</li>
+</ul>
+<p>Fichier <code>sonar-project.properties</code> :</p>
+<pre class="properties"><code>sonar.projectKey=alilhbib20007_atelier-sonarqube
+sonar.organization=alilhbib20007
+sonar.projectName=Atelier CI CD SonarCloud
+
+sonar.sources=.
+sonar.sourceEncoding=UTF-8
+sonar.exclusions=public/**
+
+sonar.qualitygate.wait=true</code></pre>
+<h2 id="etape-3-pipeline-v1-deux-jobs">Étape 3 : pipeline V1 (deux jobs)</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stages</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> quality</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> deploy</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">variables</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">GIT_DEPTH</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;0&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">SONAR_USER_HOME</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;${CI_PROJECT_DIR}/.sonar&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sonarqube-check</span><span class="kw">:</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> quality</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> sonarsource/sonar-scanner-cli:latest</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">entrypoint</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;&quot;</span><span class="kw">]</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> sonar-scanner</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="at">      -Dsonar.host.url=&quot;$SONAR_HOST_URL&quot;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="at">      -Dsonar.token=&quot;$SONAR_TOKEN&quot;</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">if</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH&#39;</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">deploy-pages</span><span class="kw">:</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> deploy</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> alpine:latest</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> mkdir -p public</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> cp index.html style.css script.js public/</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> test -s public/index.html</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">pages</span><span class="kw">:</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">publish</span><span class="kw">:</span><span class="at"> public</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">if</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;V1 - code correct&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<p><strong>Résultat V1 :</strong> <code>sonarqube-check</code> ✅ puis <code>deploy-pages</code> ✅. SonarQube : Quality Gate <strong>Passed</strong>, 0 problème de sécurité, de fiabilité ou de maintenabilité. Le site est publié sur GitLab Pages.</p>
+<h2 id="problemes-rencontres-et-solutions">Problèmes rencontrés et solutions</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Problème</th>
+<th>Cause</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Before you can run pipelines, we need to verify your account</em></td>
+<td>Compte GitLab récent</td>
+<td>Vérification du compte GitLab, puis nouveau pipeline</td>
+</tr>
+<tr class="even">
+<td><code>Organization is not allowed to access data from non main branches</code></td>
+<td>Le projet SonarQube créé manuellement avait <code>master</code> comme branche principale, alors que GitLab utilise <code>main</code></td>
+<td>Branche principale SonarQube renommée en <code>main</code></td>
+</tr>
+<tr class="odd">
+<td>Quality Gate « Not computed » à la première analyse</td>
+<td>Pas encore de référence pour le <em>new code</em></td>
+<td>Relance du pipeline : le Quality Gate est calculé</td>
+</tr>
+<tr class="even">
+<td><em>You are running CI analysis while Automatic Analysis is enabled</em> (cas du support)</td>
+<td>Analyse automatique et analyse CI en même temps</td>
+<td><em>Administration → Analysis method</em> : désactiver <em>Automatic Analysis</em> (déjà désactivée pour un projet manuel)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="etape-4-v2-volontairement-vulnerable-xss">Étape 4 : V2 volontairement vulnérable (XSS)</h2>
+<p>Le formulaire envoie la saisie dans l'URL (<code>?message=...</code>) et le script l'insère <strong>comme du HTML</strong> :</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">form</span> <span class="er">id</span><span class="ot">=</span><span class="st">&quot;demo-form&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">label</span> <span class="er">for</span><span class="ot">=</span><span class="st">&quot;user-input&quot;</span><span class="dt">&gt;</span>Votre saisie<span class="dt">&lt;/</span><span class="kw">label</span><span class="dt">&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">input</span> <span class="er">id</span><span class="ot">=</span><span class="st">&quot;user-input&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;message&quot;</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;text&quot;</span> <span class="er">autocomplete</span><span class="ot">=</span><span class="st">&quot;off&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">button</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;submit&quot;</span><span class="dt">&gt;</span>Afficher<span class="dt">&lt;/</span><span class="kw">button</span><span class="dt">&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">form</span><span class="dt">&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">p</span> <span class="er">id</span><span class="ot">=</span><span class="st">&quot;message&quot;</span> <span class="er">aria-live</span><span class="ot">=</span><span class="st">&quot;polite&quot;</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// script.js - V2 volontairement vulnérable (XSS DOM)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> message <span class="op">=</span> <span class="kw">new</span> <span class="fu">URLSearchParams</span>(<span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">search</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">get</span>(<span class="st">&quot;message&quot;</span>)<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&quot;message&quot;</span>)<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> message<span class="op">;</span></span></code></pre></div>
+<p>Une saisie comme <code>&lt;img src=x onerror="document.body.insertAdjacentHTML('beforeend','&lt;h2&gt;Injection persistante&lt;/h2&gt;')"&gt;</code> est exécutée par le navigateur : c'est une <strong>injection XSS</strong>.</p>
+<blockquote>
+<p>Remarque : une première version lisait <code>input.value</code> dans le formulaire. SonarQube ne l'a pas signalée, car son analyse de <em>taint</em> suit les données venant d'une source non fiable reconnue (ici l'URL : <code>location.search</code>) jusqu'à un point dangereux (<code>innerHTML</code>). Avec la source URL, la faille est détectée.</p>
+</blockquote>
+<p>Pipeline V2 avec quatre jobs (<code>syntax-check</code>, <code>sonarqube-check</code>, <code>security-check</code>, <code>deploy-pages</code>) :</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stages</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> quality</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> security</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> deploy</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">syntax-check</span><span class="kw">:</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> quality</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> node:22-alpine</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> node --check script.js</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sonarqube-check</span><span class="kw">:</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> quality</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> sonar-scanner -Dsonar.host.url=&quot;$SONAR_HOST_URL&quot; -Dsonar.token=&quot;$SONAR_TOKEN&quot; -Dsonar.qualitygate.wait=true</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">security-check</span><span class="kw">:</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> security</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> node:22-alpine</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">    # interroge l&#39;API SonarCloud : vulnérabilités ouvertes et hotspots à revoir</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">    # process.exitCode = 1 s&#39;il en reste</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;V2 - injection xss&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<h2 id="resultat-v2">Résultat V2</h2>
+<ul>
+<li><code>syntax-check</code> ✅ : le JavaScript est syntaxiquement valide.</li>
+<li><code>sonarqube-check</code> ❌ : SonarQube détecte <strong>« DOM XSS via unsanitized user input »</strong> (règle <code>jssecurity:S5696</code>, sévérité <strong>Blocker</strong>, <code>script.js</code> ligne 7). Note de sécurité <strong>E</strong>, Quality Gate <strong>Failed</strong> (<code>new_security_rating = 5</code>, seuil 1).</li>
+<li><code>security-check</code> et <code>deploy-pages</code> : <strong>skipped</strong>. Le code vulnérable n'est pas déployé, la V1 reste en ligne.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<ol type="1">
+<li><strong>Push</strong> vers GitLab : le développeur envoie son code.</li>
+<li><strong>Pipeline</strong> déclenché automatiquement.</li>
+<li><strong>Analyse SonarQube</strong> : bugs, sécurité, maintenabilité.</li>
+<li><strong>Quality Gate</strong> : avec <code>sonar.qualitygate.wait=true</code>, un échec fait échouer le job <code>quality</code>.</li>
+<li><strong>Déploiement bloqué</strong> : <code>deploy</code> ne s'exécute pas.</li>
+<li><strong>Correction</strong> : on corrige (par exemple <code>textContent</code> au lieu de <code>innerHTML</code>), puis un nouveau push relance le pipeline.</li>
+</ol>
+<p>À retenir : GitLab CI/CD automatise les étapes, SonarQube contrôle la qualité du code, et le Quality Gate empêche le déploiement d'un code qui ne respecte pas les critères définis.</p>

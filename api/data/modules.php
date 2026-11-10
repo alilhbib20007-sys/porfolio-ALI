@@ -86,6 +86,14 @@ return [
                     ['titre' => 'Séance atelier 6', 'liens' => [['texte' => 'Voir GitHub', 'url' => 'https://github.com/alilhbib20007-sys/atelier-stagiaires']]],
                 ],
             ],
+            [
+                'badge'  => 'Atelier 7',
+                'titre'  => 'GitLab CI/CD et SonarQube Cloud',
+                'cartes' => [
+                    ['titre' => 'Séance atelier 7', 'liens' => [['texte' => 'Voir exercice', 'page' => 'atelier-7-gitlab-sonarqube']]],
+                    ['titre' => 'Séance atelier 7', 'liens' => [['texte' => 'Voir GitLab', 'url' => 'https://gitlab.com/alilhbib20007/atelier-sonarqube']]],
+                ],
+            ],
         ],
     ],
 ];
