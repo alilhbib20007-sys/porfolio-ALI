@@ -6,7 +6,9 @@
   },
   "routes": [
     { "src": "^/$", "dest": "/api/index.php?page=accueil" },
-    { "src": "^/(mini-projets|td|controles)/?$", "dest": "/api/index.php?page=$1" },
-    { "src": "^/(mini-projets|td|controles)/([a-z0-9-]+)/?$", "dest": "/api/index.php?page=detail&section=$1&slug=$2" }
+    { "src": "^/modules/?$", "dest": "/api/index.php?page=modules" },
+    { "src": "^/modules/([a-z0-9-]+)/?$", "dest": "/api/index.php?page=detail&slug=$1" },
+    { "src": "^/(td|mini-projets|controles)/?$", "dest": "/api/index.php?page=redirect" },
+    { "src": "^/(td|mini-projets|controles)/([a-z0-9-]+)/?$", "dest": "/api/index.php?page=redirect&slug=$2" }
   ]
 }

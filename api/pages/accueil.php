@@ -1,7 +1,4 @@
 <?php
-$nbMini = count(load_data('mini-projets'));
-$nbTd   = count(load_data('td'));
-$nbCtl  = count(load_data('controles'));
 
 require API_DIR . '/includes/header.php';
 ?>
@@ -17,7 +14,7 @@ require API_DIR . '/includes/header.php';
                     et la création de solutions numériques.
                 </p>
                 <div class="hero-buttons">
-                    <a href="#explorer" class="btn btn-primary">Voir mon travail</a>
+                    <a href="/modules" class="btn btn-primary">Voir mes modules</a>
                     <a href="#contact" class="btn btn-outline">Me contacter</a>
                 </div>
             </div>
@@ -81,29 +78,22 @@ require API_DIR . '/includes/header.php';
     </div>
 </section>
 
-<!-- EXPLORER : liens vers les 3 pages -->
+<!-- MODULES : aperçu, lien vers /modules -->
 <section id="explorer">
     <div class="container">
         <div class="section-title">
-            <h2>Mon <span>Travail</span></h2>
-            <p>Parcourez mes réalisations pendant la formation.</p>
+            <h2>Mes <span>Modules</span></h2>
+            <p>Mon travail pendant la formation, classé par module.</p>
         </div>
         <div class="explore-grid">
-            <a class="explore-card" href="/mini-projets">
-                <span class="explore-count"><?= $nbMini ?></span>
-                <h3>Mini Projets</h3>
-                <p>Mes petits projets pratiques.</p>
-            </a>
-            <a class="explore-card" href="/td">
-                <span class="explore-count"><?= $nbTd ?></span>
-                <h3>TD</h3>
-                <p>Tous mes travaux dirigés.</p>
-            </a>
-            <a class="explore-card" href="/controles">
-                <span class="explore-count"><?= $nbCtl ?></span>
-                <h3>Contrôles</h3>
-                <p>Énoncés et corrections par module.</p>
-            </a>
+            <?php foreach (modules() as $module): ?>
+                <a class="explore-card" href="/modules#<?= e($module['id']) ?>">
+                    <span class="explore-count"><?= nb_seances($module) ?></span>
+                    <span class="explore-unit">séances</span>
+                    <h3><?= e($module['code']) ?> · <?= e($module['titre']) ?></h3>
+                    <p><?= e($module['sous_titre']) ?></p>
+                </a>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>

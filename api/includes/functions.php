@@ -14,156 +14,120 @@ function load_data($name)
     return is_file($file) ? require $file : [];
 }
 
-/** Sections qui ont une page liste et des pages de détail. */
-function sections()
+/** Modules de la formation (data/modules.php), mis en cache. */
+function modules()
 {
-    return [
-        'td'           => 'TD',
-        'mini-projets' => 'Mini Projets',
-        'controles'    => 'Contrôles',
-    ];
-}
-
-/** URL de la page de détail d'un élément (ou null s'il n'en a pas). */
-function detail_url($section, array $it)
-{
-    if (empty($it['slug']) || !is_file(content_path($section, $it['slug']))) {
-        return null;
+    static $modules = null;
+    if ($modules === null) {
+        $modules = load_data('modules');
     }
-    return '/' . $section . '/' . $it['slug'];
+    return $modules;
 }
 
-/** Chemin du fichier HTML qui contient le détail d'un élément. */
-function content_path($section, $slug)
+/** Pages d'exercice (data/pages.php), mises en cache. */
+function pages()
 {
-    return API_DIR . '/content/' . $section . '/' . $slug . '.html';
+    static $pages = null;
+    if ($pages === null) {
+        $pages = load_data('pages');
+    }
+    return $pages;
 }
 
-/** Cherche un élément par son slug ; renvoie [élément, position, liste] ou null. */
-function find_item($section, $slug)
+/** URL d'une page d'exercice. */
+function page_url($slug)
 {
-    $items = load_data($section);
-    foreach (array_values($items) as $i => $it) {
-        if (!empty($it['slug']) && $it['slug'] === $slug) {
-            return [$it, $i, array_values($items)];
+    return '/modules/' . $slug;
+}
+
+/** Chemin du texte détaillé d'une page (facultatif). */
+function content_path($slug)
+{
+    return API_DIR . '/content/' . $slug . '.html';
+}
+
+/**
+ * Liste ordonnée des pages internes, dans l'ordre où elles apparaissent dans les modules,
+ * avec leur module et leur section : [slug => ['module' => [...], 'section' => [...]]].
+ */
+function pages_ordonnees()
+{
+    $ordre = [];
+    foreach (modules() as $module) {
+        foreach ($module['sections'] as $section) {
+            foreach ($section['cartes'] as $carte) {
+                foreach ($carte['liens'] as $lien) {
+                    if (!empty($lien['page']) && !isset($ordre[$lien['page']]) && isset(pages()[$lien['page']])) {
+                        $ordre[$lien['page']] = ['module' => $module, 'section' => $section];
+                    }
+                }
+            }
         }
     }
-    return null;
+    return $ordre;
 }
 
-/** Affiche une carte (TD, mini projet ou contrôle). */
-function render_card(array $it, $section = '')
+/** Nombre de séances (cartes) d'un module. */
+function nb_seances(array $module)
 {
-    $url    = $section !== '' ? detail_url($section, $it) : null;
-    $module = isset($it['module']) ? $it['module'] : '';
-    $tags   = isset($it['tags']) ? $it['tags'] : [];
-    $search = strtolower($it['titre'] . ' ' . $module . ' ' . implode(' ', $tags));
+    $n = 0;
+    foreach ($module['sections'] as $section) {
+        $n += count($section['cartes']);
+    }
+    return $n;
+}
+
+/** Affiche une carte "séance" avec ses liens. */
+function render_seance(array $carte)
+{
     ob_start();
     ?>
-    <?php
-        // 'images' (tableau) a priorité sur 'image' (une seule) ; sinon aucune image.
-        $images = !empty($it['images']) ? $it['images'] : (!empty($it['image']) ? [$it['image']] : []);
-    ?>
-    <article class="card" data-module="<?= e($module) ?>" data-search="<?= e($search) ?>">
-        <?php if (count($images) > 1): ?>
-            <div class="card-gallery">
-                <?php foreach ($images as $img): ?>
-                    <a href="<?= e($img) ?>" target="_blank" rel="noopener">
-                        <img class="card-img card-img-sm" src="<?= e($img) ?>" alt="<?= e($it['titre']) ?>" loading="lazy">
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        <?php elseif (count($images) === 1): ?>
-            <a href="<?= e($url ?: $images[0]) ?>" <?= $url ? '' : 'target="_blank" rel="noopener"' ?>>
-                <img class="card-img" src="<?= e($images[0]) ?>" alt="<?= e($it['titre']) ?>" loading="lazy">
-            </a>
-        <?php elseif ($url): ?>
-            <a href="<?= e($url) ?>" class="card-img card-placeholder" aria-label="<?= e($it['titre']) ?>">&lt;/&gt;</a>
-        <?php else: ?>
-            <div class="card-img card-placeholder">&lt;/&gt;</div>
-        <?php endif; ?>
-
-        <div class="card-body">
-            <?php if ($module !== ''): ?>
-                <span class="badge"><?= e($module) ?></span>
+    <div class="seance">
+        <p class="seance-titre"><?= e($carte['titre']) ?></p>
+        <?php foreach ($carte['liens'] as $lien): ?>
+            <?php if (!empty($lien['page'])): ?>
+                <a class="seance-lien" href="<?= e(page_url($lien['page'])) ?>"><?= e($lien['texte']) ?></a>
+            <?php else: ?>
+                <a class="seance-lien externe" href="<?= e($lien['url']) ?>" target="_blank" rel="noopener"><?= e($lien['texte']) ?> ↗</a>
             <?php endif; ?>
-            <h3><?php if ($url): ?><a href="<?= e($url) ?>"><?= e($it['titre']) ?></a><?php else: ?><?= e($it['titre']) ?><?php endif; ?></h3>
-
-            <?php if (!empty($it['meta'])): ?>
-                <p class="card-meta"><?= e($it['meta']) ?></p>
-            <?php endif; ?>
-
-            <?php if (!empty($it['description'])): ?>
-                <p><?= e($it['description']) ?></p>
-            <?php endif; ?>
-
-            <div>
-                <?php foreach ($tags as $tag): ?>
-                    <span class="tag"><?= e($tag) ?></span>
-                <?php endforeach; ?>
-            </div>
-
-            <div class="card-actions">
-                <?php if ($url): ?>
-                    <a class="btn btn-primary btn-sm" href="<?= e($url) ?>">Lire le détail →</a>
-                <?php endif; ?>
-                <?php if (!empty($it['pdf'])): ?>
-                    <a class="btn btn-outline btn-sm" href="<?= e($it['pdf']) ?>" target="_blank" rel="noopener">Voir</a>
-                    <a class="btn btn-primary btn-sm" href="<?= e($it['pdf']) ?>" download>⬇ PDF</a>
-                <?php endif; ?>
-                <?php if (!empty($it['correction'])): ?>
-                    <a class="btn btn-outline btn-sm" href="<?= e($it['correction']) ?>" target="_blank" rel="noopener">Correction</a>
-                <?php endif; ?>
-                <?php if (!empty($it['demo'])): ?>
-                    <a class="btn btn-outline btn-sm" href="<?= e($it['demo']) ?>" target="_blank" rel="noopener">Voir l'application ↗</a>
-                <?php endif; ?>
-                <?php if (!empty($it['lien'])): ?>
-                    <a class="btn btn-outline btn-sm" href="<?= e($it['lien']) ?>" target="_blank" rel="noopener">Code source</a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </article>
+        <?php endforeach; ?>
+    </div>
     <?php
     return ob_get_clean();
 }
 
-/** Affiche une page complète de liste avec recherche + filtre par module. */
-function render_listing($title, $intro, array $items, $section = '')
+/** Affiche un module complet (en-tête, sections et cartes). */
+function render_module(array $module, $numero)
 {
-    $modules = [];
-    foreach ($items as $it) {
-        if (!empty($it['module'])) {
-            $modules[$it['module']] = true;
-        }
-    }
-    $modules = array_keys($modules);
+    ob_start();
     ?>
-    <section class="page-hero">
-        <div class="container">
-            <div class="section-title">
-                <h1><?= e($title) ?></h1>
-                <p><?= e($intro) ?></p>
+    <article class="module" id="<?= e($module['id']) ?>">
+        <div class="module-head">
+            <div class="module-title-row">
+                <span class="module-code">Module <?= (int) $numero ?> · <?= e($module['code']) ?></span>
+                <h2><?= e($module['titre']) ?></h2>
             </div>
-
-            <?php if (count($items) > 0): ?>
-                <div class="filters">
-                    <input type="search" id="searchInput" placeholder="Rechercher…" aria-label="Rechercher">
-                    <?php if (count($modules) > 0): ?>
-                        <button class="filter-btn active" data-filter="all">Tous</button>
-                        <?php foreach ($modules as $m): ?>
-                            <button class="filter-btn" data-filter="<?= e($m) ?>"><?= e($m) ?></button>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-
-                <div class="cards-grid" id="cardsGrid">
-                    <?php foreach ($items as $it) { echo render_card($it, $section); } ?>
-                </div>
-                <p class="empty" id="emptyMsg" hidden>Aucun résultat.</p>
-            <?php else: ?>
-                <p class="empty">Rien à afficher pour le moment. Revenez bientôt !</p>
-            <?php endif; ?>
+            <span class="module-count"><?= nb_seances($module) ?> séances</span>
         </div>
-    </section>
+        <?php if (!empty($module['sous_titre'])): ?>
+            <p class="module-sub"><?= e($module['sous_titre']) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($module['description'])): ?>
+            <p class="module-desc"><?= e($module['description']) ?></p>
+        <?php endif; ?>
+
+        <?php foreach ($module['sections'] as $section): ?>
+            <div class="module-section">
+                <div class="section-label">
+                    <span class="pill"><?= e($section['badge']) ?></span>
+                    <span class="section-name"><?= e($section['titre']) ?></span>
+                </div>
+                <div class="seances">
+                    <?php foreach ($section['cartes'] as $carte) { echo render_seance($carte); } ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </article>
     <?php
+    return ob_get_clean();
 }
