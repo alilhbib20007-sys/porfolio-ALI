@@ -96,4 +96,22 @@ return [
             ],
         ],
     ],
+    [
+        'id'          => 'm203',
+        'code'        => 'M203',
+        'titre'       => 'Gestion des données',
+        'sous_titre'  => 'SQL : requêtes, calculs, optimisation et sécurité',
+        'description' => "Concevoir et exploiter une base de données relationnelle MySQL : jointures, agrégations, fonctions SQL, sous-requêtes, index, vues et droits d'accès, sur un serveur distant hébergé sur Aiven.",
+        'sections'    => [
+            [
+                'badge'  => 'Atelier 1',
+                'titre'  => 'SQL complet : gestion commerciale sur Aiven',
+                'cartes' => [
+                    ['titre' => 'Séance atelier 1', 'liens' => [['texte' => 'Voir exercice', 'page' => 'm203-atelier-1-sql']]],
+                    ['titre' => 'Script SQL', 'liens' => [['texte' => 'Voir le script', 'url' => '/files/m203/atelier1-sql.sql']]],
+                    ['titre' => 'Résultats Aiven', 'liens' => [['texte' => 'Voir les résultats', 'url' => '/files/m203/atelier1-resultats.txt']]],
+                ],
+            ],
+        ],
+    ],
 ];

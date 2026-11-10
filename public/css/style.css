@@ -288,3 +288,6 @@ a.card-placeholder:hover { opacity: 1; }
   .pdf-frame iframe { height: 60vh; min-height: 360px; }
   .explore-grid:has(> :nth-child(2):last-child) { grid-template-columns: 1fr; }
 }
+
+/* Images dans le contenu des exercices */
+.prose img { display: block; max-width: 100%; height: auto; margin: 14px 0 22px; border-radius: 10px; border: 1px solid rgba(0, 229, 255, 0.18); }

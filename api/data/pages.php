@@ -77,4 +77,10 @@ return [
         'lien'        => 'https://gitlab.com/alilhbib20007/atelier-sonarqube',
         'tags'        => ['GitLab CI/CD', 'SonarQube Cloud', 'Quality Gate', 'XSS', 'GitLab Pages'],
     ],
+    'm203-atelier-1-sql' => [
+        'titre'       => 'Atelier 1 SQL complet - Requêtes, calculs, optimisation et sécurité',
+        'description' => "Base de données de gestion commerciale (clients, commandes, produits, paiements) créée et interrogée sur un serveur MySQL distant Aiven : jointures, agrégations, IF(), DATEDIFF(), LIMIT, sous-requêtes, index vérifiés avec EXPLAIN, vue et droits d'accès (GRANT / REVOKE).",
+        'images'      => ['/images/m203/m3-11-aiven-service.jpg', '/images/m203/m3-10-aiven-databases.jpg'],
+        'tags'        => ['MySQL', 'Aiven', 'Jointures', 'GROUP BY', 'Index', 'Vues', 'DCL'],
+    ],
 ];

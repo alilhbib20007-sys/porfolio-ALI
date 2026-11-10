@@ -1,0 +1,308 @@
+<blockquote>
+<p><strong>Exécuté sur Aiven :</strong> MySQL 8.4.11, service <code>mysql-ccc65cb</code>, utilisateur <code>avnadmin</code>, base <code>atelier_commerce</code>. Toutes les requêtes ont été lancées en une seule fois depuis le client <code>mysql</code> de WAMP, connexion TLS (<code>--ssl-mode=REQUIRED</code>), <strong>0 erreur</strong>. Fichiers : <a href="/files/m203/atelier1-sql.sql">script SQL</a> · <a href="/files/m203/atelier1-resultats.txt">résultats bruts d'Aiven</a>.</p>
+</blockquote>
+<p><strong>Thème :</strong> gestion commerciale (clients, commandes, produits, paiements). <strong>Durée :</strong> 4 heures.</p>
+<p><strong>Objectifs :</strong> concevoir une base relationnelle cohérente, manipuler les jointures, les fonctions SQL, les opérateurs et les agrégations, utiliser <code>IF()</code>, <code>LIMIT</code> et <code>DATEDIFF()</code>, améliorer la performance avec les index et les vues, et gérer les droits d'accès (DCL).</p>
+<h2 id="conception-de-la-base">Conception de la base</h2>
+<p>Cinq tables reliées par des clés étrangères :</p>
+<pre class="text"><code>clients (id, nom, ville)
+   │ 1..n
+commandes (id, client_id → clients.id, date_commande)
+   │ 1..n                         │ 1..n
+details_commandes                 paiements
+(id, commande_id → commandes.id,  (id, commande_id → commandes.id,
+ produit_id → produits.id,         montant, mode_paiement, date_paiement)
+ quantite)
+   │ n..1
+produits (id, nom_produit, prix_unitaire)</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">DATABASE</span> atelier_commerce;</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">USE</span> atelier_commerce;</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> clients (</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span> <span class="dt">INT</span> AUTO_INCREMENT <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  nom <span class="dt">VARCHAR</span>(<span class="dv">50</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  ville <span class="dt">VARCHAR</span>(<span class="dv">50</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> produits (</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span> <span class="dt">INT</span> AUTO_INCREMENT <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  nom_produit <span class="dt">VARCHAR</span>(<span class="dv">50</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  prix_unitaire <span class="dt">DECIMAL</span>(<span class="dv">10</span>,<span class="dv">2</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> commandes (</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span> <span class="dt">INT</span> AUTO_INCREMENT <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  client_id <span class="dt">INT</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  date_commande <span class="dt">DATE</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (client_id) <span class="kw">REFERENCES</span> clients(<span class="kw">id</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> details_commandes (</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span> <span class="dt">INT</span> AUTO_INCREMENT <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  commande_id <span class="dt">INT</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  produit_id <span class="dt">INT</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  quantite <span class="dt">INT</span>,</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (commande_id) <span class="kw">REFERENCES</span> commandes(<span class="kw">id</span>),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (produit_id) <span class="kw">REFERENCES</span> produits(<span class="kw">id</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> paiements (</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span> <span class="dt">INT</span> AUTO_INCREMENT <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  commande_id <span class="dt">INT</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  montant <span class="dt">DECIMAL</span>(<span class="dv">10</span>,<span class="dv">2</span>),</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  mode_paiement <span class="dt">VARCHAR</span>(<span class="dv">30</span>),</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  date_paiement <span class="dt">DATE</span>,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (commande_id) <span class="kw">REFERENCES</span> commandes(<span class="kw">id</span>)</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> clients (nom, ville)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="st">&#39;Alice&#39;</span>,<span class="st">&#39;Paris&#39;</span>), (<span class="st">&#39;Bob&#39;</span>,<span class="st">&#39;Lyon&#39;</span>), (<span class="st">&#39;Charlie&#39;</span>,<span class="st">&#39;Toulouse&#39;</span>), (<span class="st">&#39;Dina&#39;</span>,<span class="st">&#39;Nice&#39;</span>);</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> produits (nom_produit, prix_unitaire)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="st">&#39;Ordinateur&#39;</span>,<span class="dv">950</span>), (<span class="st">&#39;Souris&#39;</span>,<span class="dv">20</span>), (<span class="st">&#39;Clavier&#39;</span>,<span class="dv">45</span>), (<span class="st">&#39;Écran&#39;</span>,<span class="dv">250</span>);</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> commandes (client_id, date_commande)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="dv">1</span>,<span class="st">&#39;2025-01-10&#39;</span>), (<span class="dv">1</span>,<span class="st">&#39;2025-01-20&#39;</span>), (<span class="dv">2</span>,<span class="st">&#39;2025-02-01&#39;</span>), (<span class="dv">3</span>,<span class="st">&#39;2025-02-10&#39;</span>);</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> details_commandes (commande_id, produit_id, quantite)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), (<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">2</span>), (<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">1</span>), (<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">2</span>), (<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">3</span>);</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> paiements (commande_id, montant, mode_paiement, date_paiement)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="dv">1</span>,<span class="dv">990</span>,<span class="st">&#39;Carte&#39;</span>,<span class="st">&#39;2025-01-12&#39;</span>), (<span class="dv">2</span>,<span class="dv">45</span>,<span class="st">&#39;Espèces&#39;</span>,<span class="st">&#39;2025-01-21&#39;</span>), (<span class="dv">3</span>,<span class="dv">500</span>,<span class="st">&#39;Virement&#39;</span>,<span class="st">&#39;2025-02-05&#39;</span>);</span></code></pre></div>
+<p>Résultat sur Aiven : 5 tables créées, 4 clients, 4 produits, 4 commandes, 5 lignes de détail et 3 paiements.</p>
+<p><img loading="lazy" src="/images/m203/m3-01-creation.png" alt="Création des tables et insertion des données sur Aiven" /></p>
+<h2 id="requetes-de-jointures">Requêtes de jointures</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- INNER JOIN : uniquement les lignes qui correspondent dans les 4 tables</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> c.nom, cmd.<span class="kw">id</span> <span class="kw">AS</span> commande, p.nom_produit, dc.quantite</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> clients c</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">INNER</span> <span class="kw">JOIN</span> commandes cmd <span class="kw">ON</span> c.<span class="kw">id</span> <span class="op">=</span> cmd.client_id</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">INNER</span> <span class="kw">JOIN</span> details_commandes dc <span class="kw">ON</span> cmd.<span class="kw">id</span> <span class="op">=</span> dc.commande_id</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">INNER</span> <span class="kw">JOIN</span> produits p <span class="kw">ON</span> dc.produit_id <span class="op">=</span> p.<span class="kw">id</span>;</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- LEFT JOIN : tous les clients, même sans commande</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> c.nom, cmd.<span class="kw">id</span> <span class="kw">AS</span> num_commande</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> clients c</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> commandes cmd <span class="kw">ON</span> c.<span class="kw">id</span> <span class="op">=</span> cmd.client_id;</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th>Jointure</th>
+<th>Résultat sur Aiven</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>INNER JOIN</code></td>
+<td>5 lignes : Alice (Ordinateur, Souris, Clavier), Bob (Écran ×2), Charlie (Souris ×3)</td>
+</tr>
+<tr class="even">
+<td><code>LEFT JOIN</code></td>
+<td>5 lignes : <strong>Dina apparaît avec <code>NULL</code></strong>, car elle n'a passé aucune commande</td>
+</tr>
+<tr class="odd">
+<td><code>RIGHT JOIN</code></td>
+<td>4 lignes : toutes les commandes avec leur client</td>
+</tr>
+<tr class="even">
+<td><code>FULL JOIN</code></td>
+<td>MySQL ne le propose pas : simulé avec <code>LEFT JOIN … UNION … RIGHT JOIN</code></td>
+</tr>
+</tbody>
+</table>
+<p><img loading="lazy" src="/images/m203/m3-02-jointures.png" alt="INNER JOIN et LEFT JOIN" /></p>
+<p><img loading="lazy" src="/images/m203/m3-03-full-join.png" alt="RIGHT JOIN et FULL JOIN simulé" /></p>
+<h2 id="agregations-et-calculs">Agrégations et calculs</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Montant total par commande</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> cmd.<span class="kw">id</span> <span class="kw">AS</span> commande, <span class="fu">SUM</span>(p.prix_unitaire <span class="op">*</span> dc.quantite) <span class="kw">AS</span> total_commande</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> commandes cmd</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> details_commandes dc <span class="kw">ON</span> cmd.<span class="kw">id</span> <span class="op">=</span> dc.commande_id</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> produits p <span class="kw">ON</span> dc.produit_id <span class="op">=</span> p.<span class="kw">id</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> cmd.<span class="kw">id</span>;</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- Montant total dépensé par client, seulement au-dessus de 500</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> c.nom, <span class="fu">SUM</span>(p.prix_unitaire <span class="op">*</span> dc.quantite) <span class="kw">AS</span> total_client</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> clients c</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> commandes cmd <span class="kw">ON</span> c.<span class="kw">id</span> <span class="op">=</span> cmd.client_id</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> details_commandes dc <span class="kw">ON</span> cmd.<span class="kw">id</span> <span class="op">=</span> dc.commande_id</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> produits p <span class="kw">ON</span> dc.produit_id <span class="op">=</span> p.<span class="kw">id</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> c.nom</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="kw">HAVING</span> total_client <span class="op">&gt;</span> <span class="dv">500</span>;</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">-- Prix moyen par produit</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.nom_produit, <span class="fu">AVG</span>(p.prix_unitaire) <span class="kw">AS</span> prix_moyen</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> produits p</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> p.nom_produit;</span></code></pre></div>
+<ul>
+<li>Totaux par commande : 1 → <strong>990</strong>, 2 → <strong>45</strong>, 3 → <strong>500</strong>, 4 → <strong>60</strong>.</li>
+<li><code>HAVING total_client &gt; 500</code> : <strong>Alice (1035)</strong> seulement. Bob (500) n'est pas strictement supérieur à 500, Charlie (60) non plus.</li>
+<li><code>WHERE</code> filtre les lignes <strong>avant</strong> le regroupement, <code>HAVING</code> filtre les groupes <strong>après</strong> <code>GROUP BY</code>.</li>
+</ul>
+<p><img loading="lazy" src="/images/m203/m3-04-agregations.png" alt="SUM, AVG, GROUP BY et HAVING" /></p>
+<h2 id="fonctions-sql-if-datediff-et-limit">Fonctions SQL : IF(), DATEDIFF() et LIMIT</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- IF() : classer les clients</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> c.nom, <span class="fu">SUM</span>(p.prix_unitaire <span class="op">*</span> dc.quantite) <span class="kw">AS</span> total,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>       <span class="cf">IF</span>(<span class="fu">SUM</span>(p.prix_unitaire <span class="op">*</span> dc.quantite) <span class="op">&gt;</span> <span class="dv">800</span>, <span class="st">&#39;Premium&#39;</span>, <span class="st">&#39;Standard&#39;</span>) <span class="kw">AS</span> categorie</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> clients c</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> commandes cmd <span class="kw">ON</span> c.<span class="kw">id</span> <span class="op">=</span> cmd.client_id</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> details_commandes dc <span class="kw">ON</span> cmd.<span class="kw">id</span> <span class="op">=</span> dc.commande_id</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> produits p <span class="kw">ON</span> dc.produit_id <span class="op">=</span> p.<span class="kw">id</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> c.nom;</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- DATEDIFF() : délai entre la commande et le paiement</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.<span class="kw">id</span> <span class="kw">AS</span> paiement, cmd.<span class="kw">id</span> <span class="kw">AS</span> commande,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>       DATEDIFF(p.date_paiement, cmd.date_commande) <span class="kw">AS</span> delai_jours</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> paiements p</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> commandes cmd <span class="kw">ON</span> p.commande_id <span class="op">=</span> cmd.<span class="kw">id</span>;</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">-- LIMIT : les 2 meilleurs clients</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> c.nom, <span class="fu">SUM</span>(p.prix_unitaire <span class="op">*</span> dc.quantite) <span class="kw">AS</span> total</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> clients c</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> commandes cmd <span class="kw">ON</span> c.<span class="kw">id</span> <span class="op">=</span> cmd.client_id</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> details_commandes dc <span class="kw">ON</span> cmd.<span class="kw">id</span> <span class="op">=</span> dc.commande_id</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> produits p <span class="kw">ON</span> dc.produit_id <span class="op">=</span> p.<span class="kw">id</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> c.nom</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> total <span class="kw">DESC</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">2</span>;</span></code></pre></div>
+<ul>
+<li><code>IF()</code> : Alice <strong>Premium</strong> (1035), Bob et Charlie <strong>Standard</strong>.</li>
+<li><code>DATEDIFF()</code> : paiement 1 → <strong>2 jours</strong>, paiement 2 → <strong>1 jour</strong>, paiement 3 → <strong>4 jours</strong>.</li>
+<li><code>LIMIT 2</code> : <strong>Alice (1035)</strong> puis <strong>Bob (500)</strong>.</li>
+</ul>
+<p><img loading="lazy" src="/images/m203/m3-05-fonctions.png" alt="IF(), DATEDIFF() et LIMIT" /></p>
+<h2 id="sous-requetes-in-not-in-et-exists">Sous-requêtes : IN, NOT IN et EXISTS</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Clients ayant au moins une commande payée</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> nom <span class="kw">FROM</span> clients <span class="kw">WHERE</span> <span class="kw">id</span> <span class="kw">IN</span> (</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> client_id <span class="kw">FROM</span> commandes <span class="kw">WHERE</span> <span class="kw">id</span> <span class="kw">IN</span> (</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> commande_id <span class="kw">FROM</span> paiements));</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- Clients sans commande payée</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> nom <span class="kw">FROM</span> clients <span class="kw">WHERE</span> <span class="kw">id</span> <span class="kw">NOT</span> <span class="kw">IN</span> (</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> client_id <span class="kw">FROM</span> commandes <span class="kw">WHERE</span> <span class="kw">id</span> <span class="kw">IN</span> (</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> commande_id <span class="kw">FROM</span> paiements));</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">-- Même résultat que IN avec une sous-requête corrélée</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> nom <span class="kw">FROM</span> clients c</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="kw">EXISTS</span> (</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> <span class="dv">1</span> <span class="kw">FROM</span> commandes cmd</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">JOIN</span> paiements p <span class="kw">ON</span> cmd.<span class="kw">id</span> <span class="op">=</span> p.commande_id</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">WHERE</span> cmd.client_id <span class="op">=</span> c.<span class="kw">id</span>);</span></code></pre></div>
+<ul>
+<li><code>IN</code> et <code>EXISTS</code> : <strong>Alice, Bob</strong>.</li>
+<li><code>NOT IN</code> : <strong>Charlie</strong> (commande non payée) et <strong>Dina</strong> (aucune commande).</li>
+</ul>
+<p><img loading="lazy" src="/images/m203/m3-06-sous-requetes.png" alt="IN, NOT IN et EXISTS" /></p>
+<h2 id="optimisation-index-et-vues">Optimisation : index et vues</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> produits <span class="kw">WHERE</span> nom_produit <span class="op">=</span> <span class="st">&#39;Souris&#39;</span>;   <span class="co">-- avant</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_nom_produit <span class="kw">ON</span> produits(nom_produit);</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_client_ville <span class="kw">ON</span> clients(ville);</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> produits <span class="kw">WHERE</span> nom_produit <span class="op">=</span> <span class="st">&#39;Souris&#39;</span>;   <span class="co">-- après</span></span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th><code>EXPLAIN</code></th>
+<th>type</th>
+<th>key</th>
+<th>rows</th>
+<th>filtered</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Avant l'index</td>
+<td><code>ALL</code> (parcours complet de la table)</td>
+<td><code>NULL</code></td>
+<td>2</td>
+<td>50 %</td>
+</tr>
+<tr class="even">
+<td>Après l'index</td>
+<td><code>ref</code> (accès direct par l'index)</td>
+<td><code>idx_nom_produit</code></td>
+<td>1</td>
+<td>100 %</td>
+</tr>
+</tbody>
+</table>
+<p>MySQL ne lit plus toute la table : il va directement à la ligne « Souris » grâce à l'index B-Tree.</p>
+<p><img loading="lazy" src="/images/m203/m3-07-index-explain.png" alt="EXPLAIN avant et après l&#39;index" /></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">VIEW</span> vue_ventes <span class="kw">AS</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> c.nom, p.nom_produit, dc.quantite,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>       (p.prix_unitaire <span class="op">*</span> dc.quantite) <span class="kw">AS</span> montant, pa.mode_paiement</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> clients c</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> commandes cmd <span class="kw">ON</span> c.<span class="kw">id</span> <span class="op">=</span> cmd.client_id</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> details_commandes dc <span class="kw">ON</span> cmd.<span class="kw">id</span> <span class="op">=</span> dc.commande_id</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> produits p <span class="kw">ON</span> dc.produit_id <span class="op">=</span> p.<span class="kw">id</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> paiements pa <span class="kw">ON</span> cmd.<span class="kw">id</span> <span class="op">=</span> pa.commande_id;</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> vue_ventes;</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> vue_ventes <span class="kw">WHERE</span> montant <span class="op">&gt;</span> <span class="dv">200</span>;</span></code></pre></div>
+<p>La vue renvoie les 5 ventes. Charlie a <code>mode_paiement = NULL</code>, car sa commande n'est pas payée (<code>LEFT JOIN</code>). Le filtre <code>montant &gt; 200</code> garde <strong>Alice, Ordinateur (950)</strong> et <strong>Bob, Écran (500)</strong>.</p>
+<p><img loading="lazy" src="/images/m203/m3-08-vue.png" alt="Lecture de la vue vue_ventes" /></p>
+<h2 id="dcl-gestion-des-utilisateurs">DCL : gestion des utilisateurs</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="fu">USER</span> <span class="st">&#39;vendeur&#39;</span>@<span class="st">&#39;localhost&#39;</span> <span class="kw">IDENTIFIED</span> <span class="kw">BY</span> <span class="st">&#39;1234&#39;</span>;</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="fu">USER</span> <span class="st">&#39;manager&#39;</span>@<span class="st">&#39;localhost&#39;</span> <span class="kw">IDENTIFIED</span> <span class="kw">BY</span> <span class="st">&#39;admin&#39;</span>;</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">GRANT</span> <span class="kw">SELECT</span>, <span class="kw">INSERT</span>, <span class="kw">UPDATE</span> <span class="kw">ON</span> atelier_commerce.<span class="op">*</span> <span class="kw">TO</span> <span class="st">&#39;vendeur&#39;</span>@<span class="st">&#39;localhost&#39;</span>;</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="kw">GRANT</span> <span class="kw">ALL</span> <span class="kw">PRIVILEGES</span> <span class="kw">ON</span> atelier_commerce.<span class="op">*</span> <span class="kw">TO</span> <span class="st">&#39;manager&#39;</span>@<span class="st">&#39;localhost&#39;</span>;</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">FLUSH</span> <span class="kw">PRIVILEGES</span>;</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>SHOW GRANTS <span class="cf">FOR</span> <span class="st">&#39;manager&#39;</span>@<span class="st">&#39;localhost&#39;</span>;</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="kw">REVOKE</span> <span class="kw">UPDATE</span> <span class="kw">ON</span> atelier_commerce.<span class="op">*</span> <span class="kw">FROM</span> <span class="st">&#39;vendeur&#39;</span>@<span class="st">&#39;localhost&#39;</span>;</span></code></pre></div>
+<ul>
+<li><code>vendeur</code> : <code>SELECT, INSERT, UPDATE</code>, puis seulement <strong><code>SELECT, INSERT</code></strong> après le <code>REVOKE UPDATE</code>.</li>
+<li><code>manager</code> : <strong><code>ALL PRIVILEGES</code></strong> sur <code>atelier_commerce.*</code>.</li>
+<li>Principe du <strong>moindre privilège</strong> : chaque utilisateur reçoit uniquement les droits dont il a besoin. Les mots de passe <code>1234</code> et <code>admin</code> sont ceux de l'énoncé : en production, il faudrait des mots de passe forts.</li>
+</ul>
+<p><img loading="lazy" src="/images/m203/m3-09-dcl.png" alt="GRANT, SHOW GRANTS et REVOKE" /></p>
+<h2 id="tache-finale-base-mysql-distante-sur-aiven">Tâche finale : base MySQL distante sur Aiven</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Élément demandé dans le rapport</th>
+<th>Capture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Création des tables et insertion des données</td>
+<td>Conception de la base</td>
+</tr>
+<tr class="even">
+<td>Résultat d'une jointure (INNER JOIN ou LEFT JOIN)</td>
+<td>Requêtes de jointures</td>
+</tr>
+<tr class="odd">
+<td>Requête avec GROUP BY et fonction d'agrégation (SUM, AVG ou COUNT)</td>
+<td>Agrégations et calculs</td>
+</tr>
+<tr class="even">
+<td>Requête utilisant IF(), DATEDIFF() ou LIMIT</td>
+<td>Fonctions SQL</td>
+</tr>
+<tr class="odd">
+<td>Vérification de l'effet d'un index via EXPLAIN</td>
+<td>Optimisation</td>
+</tr>
+<tr class="even">
+<td>Lecture de la vue (<code>SELECT * FROM vue_ventes</code>)</td>
+<td>Optimisation</td>
+</tr>
+<tr class="odd">
+<td>Application d'un droit utilisateur avec GRANT ou SHOW GRANTS</td>
+<td>DCL</td>
+</tr>
+<tr class="even">
+<td>Tableau de bord Aiven prouvant la connexion à la base distante</td>
+<td>Ci-dessous</td>
+</tr>
+</tbody>
+</table>
+<p>Le service Aiven <code>mysql-ccc65cb</code> (MySQL 8.4.11, état <strong>Running</strong>) contient la base <strong><code>atelier_commerce</code></strong> créée par le script :</p>
+<p><img loading="lazy" src="/images/m203/m3-11-aiven-service.jpg" alt="Tableau de bord Aiven : service MySQL en marche" /></p>
+<p><img loading="lazy" src="/images/m203/m3-10-aiven-databases.jpg" alt="Aiven : la base atelier_commerce existe sur le serveur distant" /></p>
+<p><strong>Connexion utilisée :</strong></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span> <span class="at">-h</span> mysql-ccc65cb-alilhbib20007-90d7.a.aivencloud.com <span class="at">-P</span> 17170 <span class="dt">\</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">-u</span> avnadmin <span class="at">-p</span> <span class="at">--ssl-mode</span><span class="op">=</span>REQUIRED defaultdb <span class="op">&lt;</span> atelier1-sql.sql</span></code></pre></div>
+<p>Le mot de passe est saisi au clavier : il n'est jamais écrit dans le script.</p>
