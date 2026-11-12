@@ -1,0 +1,1469 @@
+--------------
+SELECT '=== CONNEXION ===' AS etape
+--------------
+
++-------------------+
+| etape             |
++-------------------+
+| === CONNEXION === |
++-------------------+
+1 row in set (0.06 sec)
+
+--------------
+SELECT VERSION() AS version_mysql, CURRENT_USER() AS utilisateur, NOW() AS date_execution
+--------------
+
++---------------+-------------+---------------------+
+| version_mysql | utilisateur | date_execution      |
++---------------+-------------+---------------------+
+| 8.4.11        | avnadmin@%  | 2026-11-12 14:16:30 |
++---------------+-------------+---------------------+
+1 row in set (0.08 sec)
+
+--------------
+SELECT '=== A2 Base et table stagiaires ===' AS etape
+--------------
+
++-------------------------------------+
+| etape                               |
++-------------------------------------+
+| === A2 Base et table stagiaires === |
++-------------------------------------+
+1 row in set (0.07 sec)
+
+--------------
+DROP DATABASE IF EXISTS atelier2_procedures
+--------------
+
+Query OK, 0 rows affected, 1 warning (0.08 sec)
+
+--------------
+CREATE DATABASE atelier2_procedures
+--------------
+
+Query OK, 1 row affected (0.07 sec)
+
+--------------
+CREATE TABLE stagiaires (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100),
+    ville VARCHAR(100)
+)
+--------------
+
+Query OK, 0 rows affected (0.12 sec)
+
+--------------
+INSERT INTO stagiaires (nom, ville) VALUES
+('Ali', 'Casablanca'),
+('Sara', 'Rabat'),
+('Khalid', 'Casablanca'),
+('Mouna', 'Marrakech'),
+('Youssef', 'Rabat')
+--------------
+
+Query OK, 5 rows affected (0.14 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+--------------
+SELECT * FROM stagiaires
+--------------
+
++----+---------+------------+
+| id | nom     | ville      |
++----+---------+------------+
+|  1 | Ali     | Casablanca |
+|  2 | Sara    | Rabat      |
+|  3 | Khalid  | Casablanca |
+|  4 | Mouna   | Marrakech  |
+|  5 | Youssef | Rabat      |
++----+---------+------------+
+5 rows in set (0.06 sec)
+
+--------------
+SELECT '=== A2 Exemples simples pc1 et somme ===' AS etape
+--------------
+
++------------------------------------------+
+| etape                                    |
++------------------------------------------+
+| === A2 Exemples simples pc1 et somme === |
++------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE pc1()
+BEGIN
+    SELECT * FROM stagiaires;
+END
+--------------
+
+Query OK, 0 rows affected (0.16 sec)
+
+--------------
+CREATE FUNCTION somme(a INT, b INT)
+RETURNS INT
+DETERMINISTIC NO SQL
+BEGIN
+    DECLARE s INT;
+    SET s = a + b;
+    RETURN s;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL pc1()
+--------------
+
++----+---------+------------+
+| id | nom     | ville      |
++----+---------+------------+
+|  1 | Ali     | Casablanca |
+|  2 | Sara    | Rabat      |
+|  3 | Khalid  | Casablanca |
+|  4 | Mouna   | Marrakech  |
+|  5 | Youssef | Rabat      |
++----+---------+------------+
+5 rows in set (0.11 sec)
+
+Query OK, 0 rows affected (0.11 sec)
+
+--------------
+SELECT somme(1, 2) AS `somme(1, 2)`
+--------------
+
++-------------+
+| somme(1, 2) |
++-------------+
+|           3 |
++-------------+
+1 row in set (0.10 sec)
+
+--------------
+SELECT '=== A2 Procedure afficher_stagiaires_par_ville ===' AS etape
+--------------
+
++----------------------------------------------------+
+| etape                                              |
++----------------------------------------------------+
+| === A2 Procedure afficher_stagiaires_par_ville === |
++----------------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE afficher_stagiaires_par_ville(IN ville_param VARCHAR(100))
+BEGIN
+    SELECT * FROM stagiaires WHERE ville = ville_param;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL afficher_stagiaires_par_ville('Casablanca')
+--------------
+
++----+--------+------------+
+| id | nom    | ville      |
++----+--------+------------+
+|  1 | Ali    | Casablanca |
+|  3 | Khalid | Casablanca |
++----+--------+------------+
+2 rows in set (0.06 sec)
+
+Query OK, 0 rows affected (0.06 sec)
+
+--------------
+SELECT '=== A2 Procedure compter_stagiaires ===' AS etape
+--------------
+
++-----------------------------------------+
+| etape                                   |
++-----------------------------------------+
+| === A2 Procedure compter_stagiaires === |
++-----------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE compter_stagiaires()
+BEGIN
+    DECLARE total INT;
+    SELECT COUNT(*) INTO total FROM stagiaires;
+    SELECT total AS 'Nombre de stagiaires';
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL compter_stagiaires()
+--------------
+
++----------------------+
+| Nombre de stagiaires |
++----------------------+
+|                    5 |
++----------------------+
+1 row in set (0.12 sec)
+
+Query OK, 0 rows affected (0.12 sec)
+
+--------------
+SELECT '=== A2 Fonction nombre_stagiaires_par_ville ===' AS etape
+--------------
+
++-------------------------------------------------+
+| etape                                           |
++-------------------------------------------------+
+| === A2 Fonction nombre_stagiaires_par_ville === |
++-------------------------------------------------+
+1 row in set (0.07 sec)
+
+--------------
+CREATE FUNCTION nombre_stagiaires_par_ville(ville_param VARCHAR(100))
+RETURNS INT
+READS SQL DATA
+BEGIN
+    DECLARE total INT;
+    SELECT COUNT(*) INTO total FROM stagiaires WHERE ville = ville_param;
+    RETURN total;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT nombre_stagiaires_par_ville('Rabat') AS `nombre_stagiaires_par_ville('Rabat')`
+--------------
+
++--------------------------------------+
+| nombre_stagiaires_par_ville('Rabat') |
++--------------------------------------+
+|                                    2 |
++--------------------------------------+
+1 row in set (0.07 sec)
+
+--------------
+SELECT '=== A2 SHOW PROCEDURE / FUNCTION STATUS ===' AS etape
+--------------
+
++---------------------------------------------+
+| etape                                       |
++---------------------------------------------+
+| === A2 SHOW PROCEDURE / FUNCTION STATUS === |
++---------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+SELECT ROUTINE_NAME AS nom, ROUTINE_TYPE AS type, CREATED AS cree_le
+FROM information_schema.ROUTINES
+WHERE ROUTINE_SCHEMA = DATABASE()
+ORDER BY ROUTINE_TYPE, ROUTINE_NAME
+--------------
+
++-------------------------------+-----------+---------------------+
+| nom                           | type      | cree_le             |
++-------------------------------+-----------+---------------------+
+| nombre_stagiaires_par_ville   | FUNCTION  | 2026-11-12 14:16:32 |
+| somme                         | FUNCTION  | 2026-11-12 14:16:31 |
+| afficher_stagiaires_par_ville | PROCEDURE | 2026-11-12 14:16:31 |
+| compter_stagiaires            | PROCEDURE | 2026-11-12 14:16:32 |
+| pc1                           | PROCEDURE | 2026-11-12 14:16:31 |
++-------------------------------+-----------+---------------------+
+5 rows in set (0.08 sec)
+
+--------------
+SELECT '=== A2 Facturation de l eau : table et procedure WHILE ===' AS etape
+--------------
+
++------------------------------------------------------------+
+| etape                                                      |
++------------------------------------------------------------+
+| === A2 Facturation de l eau : table et procedure WHILE === |
++------------------------------------------------------------+
+1 row in set (0.07 sec)
+
+--------------
+CREATE TABLE facture (
+    id_facture INT AUTO_INCREMENT PRIMARY KEY,
+    nom_client VARCHAR(255),
+    qte_eau INT
+)
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CREATE PROCEDURE inserer_factures()
+BEGIN
+    DECLARE compteur INT DEFAULT 1;
+    WHILE compteur <= 100 DO
+        INSERT INTO facture (nom_client, qte_eau)
+        VALUES (CONCAT('Client', compteur), compteur);
+        SET compteur = compteur + 1;
+    END WHILE;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL inserer_factures()
+--------------
+
+Query OK, 1 row affected (0.12 sec)
+
+--------------
+SELECT COUNT(*) AS nb_factures, MIN(qte_eau) AS qte_min, MAX(qte_eau) AS qte_max FROM facture
+--------------
+
++-------------+---------+---------+
+| nb_factures | qte_min | qte_max |
++-------------+---------+---------+
+|         100 |       1 |     100 |
++-------------+---------+---------+
+1 row in set (0.07 sec)
+
+--------------
+SELECT '=== A2 Fonction calculer_montant (tranches) ===' AS etape
+--------------
+
++-------------------------------------------------+
+| etape                                           |
++-------------------------------------------------+
+| === A2 Fonction calculer_montant (tranches) === |
++-------------------------------------------------+
+1 row in set (0.07 sec)
+
+--------------
+CREATE FUNCTION calculer_montant(qte INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC NO SQL
+BEGIN
+    DECLARE montant DECIMAL(10,2);
+    IF qte <= 10 THEN
+        SET montant = qte * 1;
+    ELSEIF qte <= 30 THEN
+        SET montant = (10 * 1) + (qte - 10) * 1.5;
+    ELSE
+        SET montant = (10 * 1) + (20 * 1.5) + (qte - 30) * 2;
+    END IF;
+    RETURN montant;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT id_facture, nom_client, qte_eau, calculer_montant(qte_eau) AS montant_a_payer
+FROM facture
+WHERE qte_eau IN (1, 5, 10, 11, 20, 30, 31, 50, 100)
+--------------
+
++------------+------------+---------+-----------------+
+| id_facture | nom_client | qte_eau | montant_a_payer |
++------------+------------+---------+-----------------+
+|          1 | Client1    |       1 |            1.00 |
+|          5 | Client5    |       5 |            5.00 |
+|         10 | Client10   |      10 |           10.00 |
+|         11 | Client11   |      11 |           11.50 |
+|         20 | Client20   |      20 |           25.00 |
+|         30 | Client30   |      30 |           40.00 |
+|         31 | Client31   |      31 |           42.00 |
+|         50 | Client50   |      50 |           80.00 |
+|        100 | Client100  |     100 |          180.00 |
++------------+------------+---------+-----------------+
+9 rows in set (0.07 sec)
+
+--------------
+SELECT COUNT(*) AS nb_factures, SUM(calculer_montant(qte_eau)) AS total_a_encaisser FROM facture
+--------------
+
++-------------+-------------------+
+| nb_factures | total_a_encaisser |
++-------------+-------------------+
+|         100 |           8340.00 |
++-------------+-------------------+
+1 row in set (0.07 sec)
+
+--------------
+SELECT '=== A2 Parametre IN : supprimer_stagiaire ===' AS etape
+--------------
+
++-----------------------------------------------+
+| etape                                         |
++-----------------------------------------------+
+| === A2 Parametre IN : supprimer_stagiaire === |
++-----------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE supprimer_stagiaire(IN p_id INT)
+BEGIN
+    DELETE FROM stagiaires WHERE id = p_id;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL supprimer_stagiaire(5)
+--------------
+
+Query OK, 1 row affected (0.07 sec)
+
+--------------
+SELECT * FROM stagiaires
+--------------
+
++----+--------+------------+
+| id | nom    | ville      |
++----+--------+------------+
+|  1 | Ali    | Casablanca |
+|  2 | Sara   | Rabat      |
+|  3 | Khalid | Casablanca |
+|  4 | Mouna  | Marrakech  |
++----+--------+------------+
+4 rows in set (0.07 sec)
+
+--------------
+SELECT '=== A2 Parametre OUT : compter_stagiaires_out ===' AS etape
+--------------
+
++---------------------------------------------------+
+| etape                                             |
++---------------------------------------------------+
+| === A2 Parametre OUT : compter_stagiaires_out === |
++---------------------------------------------------+
+1 row in set (0.07 sec)
+
+--------------
+CREATE PROCEDURE compter_stagiaires_out(OUT total INT)
+BEGIN
+    SELECT COUNT(*) INTO total FROM stagiaires;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL compter_stagiaires_out(@nb)
+--------------
+
+Query OK, 1 row affected (0.08 sec)
+
+--------------
+SELECT @nb AS total_stagiaires
+--------------
+
++------------------+
+| total_stagiaires |
++------------------+
+|                4 |
++------------------+
+1 row in set (0.06 sec)
+
+--------------
+SELECT '=== A2 Parametre INOUT : augmenter_stock ===' AS etape
+--------------
+
++----------------------------------------------+
+| etape                                        |
++----------------------------------------------+
+| === A2 Parametre INOUT : augmenter_stock === |
++----------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE TABLE produits (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100),
+    stock INT
+)
+--------------
+
+Query OK, 0 rows affected (0.08 sec)
+
+--------------
+INSERT INTO produits (nom, stock) VALUES ('Clavier', 15), ('Souris', 40)
+--------------
+
+Query OK, 2 rows affected (0.08 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+--------------
+CREATE PROCEDURE augmenter_stock(INOUT qte INT, IN p_id INT)
+BEGIN
+    UPDATE produits SET stock = stock + qte WHERE id = p_id;
+    SELECT stock INTO qte FROM produits WHERE id = p_id;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SET @ajout = 10
+--------------
+
+Query OK, 0 rows affected (0.06 sec)
+
+--------------
+CALL augmenter_stock(@ajout, 1)
+--------------
+
+Query OK, 1 row affected (0.09 sec)
+
+--------------
+SELECT @ajout AS nouveau_stock
+--------------
+
++---------------+
+| nouveau_stock |
++---------------+
+|            25 |
++---------------+
+1 row in set (0.06 sec)
+
+--------------
+SELECT * FROM produits
+--------------
+
++----+---------+-------+
+| id | nom     | stock |
++----+---------+-------+
+|  1 | Clavier |    25 |
+|  2 | Souris  |    40 |
++----+---------+-------+
+2 rows in set (0.06 sec)
+
+--------------
+SELECT '=== A2 Suppression des procedures et fonctions ===' AS etape
+--------------
+
++----------------------------------------------------+
+| etape                                              |
++----------------------------------------------------+
+| === A2 Suppression des procedures et fonctions === |
++----------------------------------------------------+
+1 row in set (0.09 sec)
+
+--------------
+DROP PROCEDURE IF EXISTS afficher_stagiaires_par_ville
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+DROP PROCEDURE IF EXISTS compter_stagiaires
+--------------
+
+Query OK, 0 rows affected (0.08 sec)
+
+--------------
+DROP FUNCTION IF EXISTS nombre_stagiaires_par_ville
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT ROUTINE_NAME AS routines_restantes, ROUTINE_TYPE AS type
+FROM information_schema.ROUTINES
+WHERE ROUTINE_SCHEMA = DATABASE()
+ORDER BY ROUTINE_TYPE, ROUTINE_NAME
+--------------
+
++------------------------+-----------+
+| routines_restantes     | type      |
++------------------------+-----------+
+| calculer_montant       | FUNCTION  |
+| somme                  | FUNCTION  |
+| augmenter_stock        | PROCEDURE |
+| compter_stagiaires_out | PROCEDURE |
+| inserer_factures       | PROCEDURE |
+| pc1                    | PROCEDURE |
+| supprimer_stagiaire    | PROCEDURE |
++------------------------+-----------+
+7 rows in set (0.07 sec)
+
+--------------
+SELECT '=== A3 Creation de la base techlearn_db ===' AS etape
+--------------
+
++---------------------------------------------+
+| etape                                       |
++---------------------------------------------+
+| === A3 Creation de la base techlearn_db === |
++---------------------------------------------+
+1 row in set (0.07 sec)
+
+--------------
+DROP DATABASE IF EXISTS techlearn_db
+--------------
+
+Query OK, 0 rows affected, 1 warning (0.07 sec)
+
+--------------
+CREATE DATABASE techlearn_db
+--------------
+
+Query OK, 1 row affected (0.07 sec)
+
+--------------
+CREATE TABLE formateurs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100),
+    specialite VARCHAR(100)
+)
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CREATE TABLE stagiaires (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100),
+    ville VARCHAR(100)
+)
+--------------
+
+Query OK, 0 rows affected (0.08 sec)
+
+--------------
+CREATE TABLE sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    intitule VARCHAR(100),
+    formateur_id INT,
+    capacite INT,
+    inscrits INT DEFAULT 0,
+    FOREIGN KEY (formateur_id) REFERENCES formateurs(id)
+)
+--------------
+
+Query OK, 0 rows affected (0.14 sec)
+
+--------------
+SHOW TABLES
+--------------
+
++------------------------+
+| Tables_in_techlearn_db |
++------------------------+
+| formateurs             |
+| sessions               |
+| stagiaires             |
++------------------------+
+3 rows in set (0.08 sec)
+
+--------------
+SELECT '=== A3 Insertion des donnees ===' AS etape
+--------------
+
++----------------------------------+
+| etape                            |
++----------------------------------+
+| === A3 Insertion des donnees === |
++----------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+INSERT INTO formateurs (nom, specialite) VALUES
+('Mme Nadia', 'Bases de données'),
+('M. Karim', 'Développement Web'),
+('Mme Salma', 'Analyse de données')
+--------------
+
+Query OK, 3 rows affected (0.07 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+--------------
+INSERT INTO stagiaires (nom, ville) VALUES
+('Ali', 'Casablanca'),
+('Sara', 'Rabat'),
+('Mouna', 'Marrakech')
+--------------
+
+Query OK, 3 rows affected (0.07 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+--------------
+INSERT INTO sessions (intitule, formateur_id, capacite, inscrits) VALUES
+('MySQL avancé', 1, 20, 5),
+('HTML/CSS', 2, 25, 10),
+('Python Data', 3, 15, 8)
+--------------
+
+Query OK, 3 rows affected (0.07 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+--------------
+SELECT * FROM formateurs
+--------------
+
++----+-----------+---------------------+
+| id | nom       | specialite          |
++----+-----------+---------------------+
+|  1 | Mme Nadia | Bases de données    |
+|  2 | M. Karim  | Développement Web   |
+|  3 | Mme Salma | Analyse de données  |
++----+-----------+---------------------+
+3 rows in set (0.07 sec)
+
+--------------
+SELECT * FROM sessions
+--------------
+
++----+---------------+--------------+----------+----------+
+| id | intitule      | formateur_id | capacite | inscrits |
++----+---------------+--------------+----------+----------+
+|  1 | MySQL avancé  |            1 |       20 |        5 |
+|  2 | HTML/CSS      |            2 |       25 |       10 |
+|  3 | Python Data   |            3 |       15 |        8 |
++----+---------------+--------------+----------+----------+
+3 rows in set (0.06 sec)
+
+--------------
+SELECT '=== A3 Exercice 1 : parametre IN ===' AS etape
+--------------
+
++--------------------------------------+
+| etape                                |
++--------------------------------------+
+| === A3 Exercice 1 : parametre IN === |
++--------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE afficher_stagiaires_par_ville(IN ville_nom VARCHAR(100))
+BEGIN
+    SELECT * FROM stagiaires WHERE ville = ville_nom;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL afficher_stagiaires_par_ville('Casablanca')
+--------------
+
++----+------+------------+
+| id | nom  | ville      |
++----+------+------------+
+|  1 | Ali  | Casablanca |
++----+------+------------+
+1 row in set (0.07 sec)
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT '=== A3 Exercice 2 : parametre OUT ===' AS etape
+--------------
+
++---------------------------------------+
+| etape                                 |
++---------------------------------------+
+| === A3 Exercice 2 : parametre OUT === |
++---------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE compter_sessions(OUT total INT)
+BEGIN
+    SELECT COUNT(*) INTO total FROM sessions;
+END
+--------------
+
+Query OK, 0 rows affected (0.06 sec)
+
+--------------
+CALL compter_sessions(@nb)
+--------------
+
+Query OK, 1 row affected (0.06 sec)
+
+--------------
+SELECT @nb AS nombre_total_sessions
+--------------
+
++-----------------------+
+| nombre_total_sessions |
++-----------------------+
+|                     3 |
++-----------------------+
+1 row in set (0.06 sec)
+
+--------------
+SELECT '=== A3 Exercice 3 : parametre INOUT ===' AS etape
+--------------
+
++-----------------------------------------+
+| etape                                   |
++-----------------------------------------+
+| === A3 Exercice 3 : parametre INOUT === |
++-----------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE inscrire_stagiaire(INOUT nb_inscrits INT, IN session_id INT)
+BEGIN
+    UPDATE sessions SET inscrits = inscrits + 1 WHERE id = session_id;
+    SELECT inscrits INTO nb_inscrits FROM sessions WHERE id = session_id;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SET @nouveau = 0
+--------------
+
+Query OK, 0 rows affected (0.06 sec)
+
+--------------
+CALL inscrire_stagiaire(@nouveau, 1)
+--------------
+
+Query OK, 1 row affected (0.07 sec)
+
+--------------
+SELECT @nouveau AS nouveau_nombre_inscrits
+--------------
+
++-------------------------+
+| nouveau_nombre_inscrits |
++-------------------------+
+|                       6 |
++-------------------------+
+1 row in set (0.06 sec)
+
+--------------
+SELECT '=== A3 Exercice 4 : fonction taux_occupation ===' AS etape
+--------------
+
++--------------------------------------------------+
+| etape                                            |
++--------------------------------------------------+
+| === A3 Exercice 4 : fonction taux_occupation === |
++--------------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE FUNCTION taux_occupation(id_session INT)
+RETURNS DECIMAL(5,2)
+READS SQL DATA
+BEGIN
+    DECLARE taux DECIMAL(5,2);
+    SELECT (inscrits / capacite) * 100 INTO taux FROM sessions WHERE id = id_session;
+    RETURN taux;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT intitule, inscrits, capacite, taux_occupation(id) AS taux FROM sessions
+--------------
+
++---------------+----------+----------+-------+
+| intitule      | inscrits | capacite | taux  |
++---------------+----------+----------+-------+
+| MySQL avancé  |        6 |       20 | 30.00 |
+| HTML/CSS      |       10 |       25 | 40.00 |
+| Python Data   |        8 |       15 | 53.33 |
++---------------+----------+----------+-------+
+3 rows in set (0.07 sec)
+
+--------------
+SELECT '=== A3 Exercice 5 : boucle generer_sessions ===' AS etape
+--------------
+
++-------------------------------------------------+
+| etape                                           |
++-------------------------------------------------+
+| === A3 Exercice 5 : boucle generer_sessions === |
++-------------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE generer_sessions(IN formateur INT)
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    WHILE i <= 10 DO
+        INSERT INTO sessions (intitule, formateur_id, capacite, inscrits)
+        VALUES (CONCAT('Session ', i, ' - Formateur ', formateur), formateur, 20, 0);
+        SET i = i + 1;
+    END WHILE;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL generer_sessions(2)
+--------------
+
+Query OK, 1 row affected (0.08 sec)
+
+--------------
+SELECT id, intitule, formateur_id, capacite, inscrits FROM sessions
+--------------
+
++----+--------------------------+--------------+----------+----------+
+| id | intitule                 | formateur_id | capacite | inscrits |
++----+--------------------------+--------------+----------+----------+
+|  1 | MySQL avancé             |            1 |       20 |        6 |
+|  2 | HTML/CSS                 |            2 |       25 |       10 |
+|  3 | Python Data              |            3 |       15 |        8 |
+|  4 | Session 1 - Formateur 2  |            2 |       20 |        0 |
+|  5 | Session 2 - Formateur 2  |            2 |       20 |        0 |
+|  6 | Session 3 - Formateur 2  |            2 |       20 |        0 |
+|  7 | Session 4 - Formateur 2  |            2 |       20 |        0 |
+|  8 | Session 5 - Formateur 2  |            2 |       20 |        0 |
+|  9 | Session 6 - Formateur 2  |            2 |       20 |        0 |
+| 10 | Session 7 - Formateur 2  |            2 |       20 |        0 |
+| 11 | Session 8 - Formateur 2  |            2 |       20 |        0 |
+| 12 | Session 9 - Formateur 2  |            2 |       20 |        0 |
+| 13 | Session 10 - Formateur 2 |            2 |       20 |        0 |
++----+--------------------------+--------------+----------+----------+
+13 rows in set (0.07 sec)
+
+--------------
+SELECT '=== A3 Defi 1 : fonction sessions_formateur ===' AS etape
+--------------
+
++-------------------------------------------------+
+| etape                                           |
++-------------------------------------------------+
+| === A3 Defi 1 : fonction sessions_formateur === |
++-------------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE FUNCTION sessions_formateur(nom_formateur VARCHAR(100))
+RETURNS INT
+READS SQL DATA
+BEGIN
+    DECLARE nb INT;
+    SELECT COUNT(*) INTO nb
+    FROM sessions s
+    JOIN formateurs f ON f.id = s.formateur_id
+    WHERE f.nom = nom_formateur;
+    RETURN nb;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT nom, sessions_formateur(nom) AS nb_sessions FROM formateurs
+--------------
+
++-----------+-------------+
+| nom       | nb_sessions |
++-----------+-------------+
+| Mme Nadia |           1 |
+| M. Karim  |          11 |
+| Mme Salma |           1 |
++-----------+-------------+
+3 rows in set (0.07 sec)
+
+--------------
+SELECT '=== A3 Defi 2 : procedure supprimer_sessions_vides ===' AS etape
+--------------
+
++--------------------------------------------------------+
+| etape                                                  |
++--------------------------------------------------------+
+| === A3 Defi 2 : procedure supprimer_sessions_vides === |
++--------------------------------------------------------+
+1 row in set (0.07 sec)
+
+--------------
+CREATE PROCEDURE supprimer_sessions_vides()
+BEGIN
+    DECLARE nb INT;
+    SELECT COUNT(*) INTO nb FROM sessions WHERE inscrits = 0;
+    DELETE FROM sessions WHERE inscrits = 0;
+    SELECT CONCAT(nb, ' session(s) vide(s) supprimée(s)') AS resultat;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL supprimer_sessions_vides()
+--------------
+
++-------------------------------------+
+| resultat                            |
++-------------------------------------+
+| 10 session(s) vide(s) supprimée(s)  |
++-------------------------------------+
+1 row in set (0.07 sec)
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT * FROM sessions
+--------------
+
++----+---------------+--------------+----------+----------+
+| id | intitule      | formateur_id | capacite | inscrits |
++----+---------------+--------------+----------+----------+
+|  1 | MySQL avancé  |            1 |       20 |        6 |
+|  2 | HTML/CSS      |            2 |       25 |       10 |
+|  3 | Python Data   |            3 |       15 |        8 |
++----+---------------+--------------+----------+----------+
+3 rows in set (0.06 sec)
+
+--------------
+SELECT '=== A3 Defi 3 : procedure valider_inscription ===' AS etape
+--------------
+
++---------------------------------------------------+
+| etape                                             |
++---------------------------------------------------+
+| === A3 Defi 3 : procedure valider_inscription === |
++---------------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE valider_inscription(IN session_id INT)
+BEGIN
+    DECLARE v_inscrits INT;
+    DECLARE v_capacite INT;
+    SELECT inscrits, capacite INTO v_inscrits, v_capacite
+    FROM sessions WHERE id = session_id;
+    IF v_inscrits >= v_capacite THEN
+        SELECT 'Session complète' AS message, v_inscrits AS inscrits, v_capacite AS capacite;
+    ELSE
+        UPDATE sessions SET inscrits = inscrits + 1 WHERE id = session_id;
+        SELECT 'Inscription validée' AS message, v_inscrits + 1 AS inscrits, v_capacite AS capacite;
+    END IF;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL valider_inscription(2)
+--------------
+
++----------------------+----------+----------+
+| message              | inscrits | capacite |
++----------------------+----------+----------+
+| Inscription validée  |       11 |       25 |
++----------------------+----------+----------+
+1 row in set (0.07 sec)
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+UPDATE sessions SET inscrits = capacite WHERE id = 3
+--------------
+
+Query OK, 1 row affected (0.08 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+CALL valider_inscription(3)
+--------------
+
++-------------------+----------+----------+
+| message           | inscrits | capacite |
++-------------------+----------+----------+
+| Session complète  |       15 |       15 |
++-------------------+----------+----------+
+1 row in set (0.06 sec)
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT intitule, inscrits, capacite, taux_occupation(id) AS taux FROM sessions
+--------------
+
++---------------+----------+----------+--------+
+| intitule      | inscrits | capacite | taux   |
++---------------+----------+----------+--------+
+| MySQL avancé  |        6 |       20 |  30.00 |
+| HTML/CSS      |       11 |       25 |  44.00 |
+| Python Data   |       15 |       15 | 100.00 |
++---------------+----------+----------+--------+
+3 rows in set (0.06 sec)
+
+--------------
+SELECT '=== A3 Recapitulatif des routines ===' AS etape
+--------------
+
++---------------------------------------+
+| etape                                 |
++---------------------------------------+
+| === A3 Recapitulatif des routines === |
++---------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+SELECT ROUTINE_NAME AS nom, ROUTINE_TYPE AS type
+FROM information_schema.ROUTINES
+WHERE ROUTINE_SCHEMA = DATABASE()
+ORDER BY ROUTINE_TYPE, ROUTINE_NAME
+--------------
+
++-------------------------------+-----------+
+| nom                           | type      |
++-------------------------------+-----------+
+| sessions_formateur            | FUNCTION  |
+| taux_occupation               | FUNCTION  |
+| afficher_stagiaires_par_ville | PROCEDURE |
+| compter_sessions              | PROCEDURE |
+| generer_sessions              | PROCEDURE |
+| inscrire_stagiaire            | PROCEDURE |
+| supprimer_sessions_vides      | PROCEDURE |
+| valider_inscription           | PROCEDURE |
++-------------------------------+-----------+
+8 rows in set (0.34 sec)
+
+--------------
+SELECT '=== A4 Base et exemple de curseur ===' AS etape
+--------------
+
++---------------------------------------+
+| etape                                 |
++---------------------------------------+
+| === A4 Base et exemple de curseur === |
++---------------------------------------+
+1 row in set (0.10 sec)
+
+--------------
+DROP DATABASE IF EXISTS atelier4_curseurs
+--------------
+
+Query OK, 0 rows affected, 1 warning (0.10 sec)
+
+--------------
+CREATE DATABASE atelier4_curseurs
+--------------
+
+Query OK, 1 row affected (0.07 sec)
+
+--------------
+CREATE TABLE stagiaires (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100)
+)
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+INSERT INTO stagiaires (nom) VALUES ('Ali'), ('Sara'), ('Mouna')
+--------------
+
+Query OK, 3 rows affected (0.07 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+--------------
+CREATE PROCEDURE exemple_curseur()
+BEGIN
+    DECLARE var1 INT;
+    DECLARE var2 VARCHAR(100);
+    DECLARE fin_curseur BOOLEAN DEFAULT FALSE;
+    DECLARE mon_curseur CURSOR FOR
+        SELECT id, nom FROM stagiaires;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET fin_curseur = TRUE;
+
+    OPEN mon_curseur;
+    boucle_lecture: LOOP
+        FETCH mon_curseur INTO var1, var2;
+        IF fin_curseur THEN
+            LEAVE boucle_lecture;
+        END IF;
+        SELECT CONCAT('Lecture du stagiaire : ', var2) AS message;
+    END LOOP;
+    CLOSE mon_curseur;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL exemple_curseur()
+--------------
+
++----------------------------+
+| message                    |
++----------------------------+
+| Lecture du stagiaire : Ali |
++----------------------------+
+1 row in set (0.07 sec)
+
++-----------------------------+
+| message                     |
++-----------------------------+
+| Lecture du stagiaire : Sara |
++-----------------------------+
+1 row in set (0.07 sec)
+
++------------------------------+
+| message                      |
++------------------------------+
+| Lecture du stagiaire : Mouna |
++------------------------------+
+1 row in set (0.07 sec)
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT '=== A4 Cas pratique : facture avec curseur ===' AS etape
+--------------
+
++------------------------------------------------+
+| etape                                          |
++------------------------------------------------+
+| === A4 Cas pratique : facture avec curseur === |
++------------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE TABLE IF NOT EXISTS facture (
+    id_facture INT AUTO_INCREMENT PRIMARY KEY,
+    nom_client VARCHAR(100),
+    qte_eau INT,
+    montant DECIMAL(10, 2)
+)
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+INSERT INTO facture (nom_client, qte_eau) VALUES
+('Client 1', 9),
+('Client 2', 15),
+('Client 3', 25)
+--------------
+
+Query OK, 3 rows affected (0.07 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+--------------
+SELECT * FROM facture
+--------------
+
++------------+------------+---------+---------+
+| id_facture | nom_client | qte_eau | montant |
++------------+------------+---------+---------+
+|          1 | Client 1   |       9 |    NULL |
+|          2 | Client 2   |      15 |    NULL |
+|          3 | Client 3   |      25 |    NULL |
++------------+------------+---------+---------+
+3 rows in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE calculer_factures()
+BEGIN
+    DECLARE v_id INT;
+    DECLARE v_qte INT;
+    DECLARE v_montant DECIMAL(10,2);
+    DECLARE fin BOOLEAN DEFAULT FALSE;
+    DECLARE curseur_facture CURSOR FOR
+        SELECT id_facture, qte_eau FROM facture;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET fin = TRUE;
+
+    OPEN curseur_facture;
+    boucle_factures: LOOP
+        FETCH curseur_facture INTO v_id, v_qte;
+        IF fin THEN
+            LEAVE boucle_factures;
+        END IF;
+        SET v_montant = v_qte * 1.25;
+        UPDATE facture SET montant = v_montant WHERE id_facture = v_id;
+    END LOOP;
+    CLOSE curseur_facture;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL calculer_factures()
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT * FROM facture
+--------------
+
++------------+------------+---------+---------+
+| id_facture | nom_client | qte_eau | montant |
++------------+------------+---------+---------+
+|          1 | Client 1   |       9 |   11.25 |
+|          2 | Client 2   |      15 |   18.75 |
+|          3 | Client 3   |      25 |   31.25 |
++------------+------------+---------+---------+
+3 rows in set (0.06 sec)
+
+--------------
+SELECT '=== A4 Exercice notes : table et donnees ===' AS etape
+--------------
+
++----------------------------------------------+
+| etape                                        |
++----------------------------------------------+
+| === A4 Exercice notes : table et donnees === |
++----------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE TABLE notes (
+    id_note INT AUTO_INCREMENT PRIMARY KEY,
+    nom_etudiant VARCHAR(100),
+    note DECIMAL(4,2),
+    mention VARCHAR(20)
+)
+--------------
+
+Query OK, 0 rows affected (0.09 sec)
+
+--------------
+INSERT INTO notes (nom_etudiant, note) VALUES
+('Ali', 17.50),
+('Sara', 14.25),
+('Khalid', 11.00),
+('Mouna', 8.75),
+('Youssef', 19.00),
+('Imane', 9.99),
+('Omar', 16.00)
+--------------
+
+Query OK, 7 rows affected (0.07 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+--------------
+SELECT * FROM notes
+--------------
+
++---------+--------------+-------+---------+
+| id_note | nom_etudiant | note  | mention |
++---------+--------------+-------+---------+
+|       1 | Ali          | 17.50 | NULL    |
+|       2 | Sara         | 14.25 | NULL    |
+|       3 | Khalid       | 11.00 | NULL    |
+|       4 | Mouna        |  8.75 | NULL    |
+|       5 | Youssef      | 19.00 | NULL    |
+|       6 | Imane        |  9.99 | NULL    |
+|       7 | Omar         | 16.00 | NULL    |
++---------+--------------+-------+---------+
+7 rows in set (0.06 sec)
+
+--------------
+SELECT '=== A4 Exercice notes : procedure avec curseur ===' AS etape
+--------------
+
++----------------------------------------------------+
+| etape                                              |
++----------------------------------------------------+
+| === A4 Exercice notes : procedure avec curseur === |
++----------------------------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+CREATE PROCEDURE attribuer_mentions()
+BEGIN
+    DECLARE v_id INT;
+    DECLARE v_note DECIMAL(4,2);
+    DECLARE v_mention VARCHAR(20);
+    DECLARE fin BOOLEAN DEFAULT FALSE;
+    DECLARE curseur_notes CURSOR FOR
+        SELECT id_note, note FROM notes;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET fin = TRUE;
+
+    OPEN curseur_notes;
+    boucle_notes: LOOP
+        FETCH curseur_notes INTO v_id, v_note;
+        IF fin THEN
+            LEAVE boucle_notes;
+        END IF;
+
+        IF v_note >= 16 THEN
+            SET v_mention = 'Excellent';
+        ELSEIF v_note >= 14 THEN
+            SET v_mention = 'Bien';
+        ELSEIF v_note >= 10 THEN
+            SET v_mention = 'Passable';
+        ELSE
+            SET v_mention = 'Insuffisant';
+        END IF;
+
+        UPDATE notes SET mention = v_mention WHERE id_note = v_id;
+    END LOOP;
+    CLOSE curseur_notes;
+END
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+CALL attribuer_mentions()
+--------------
+
+Query OK, 0 rows affected (0.07 sec)
+
+--------------
+SELECT * FROM notes
+--------------
+
++---------+--------------+-------+-------------+
+| id_note | nom_etudiant | note  | mention     |
++---------+--------------+-------+-------------+
+|       1 | Ali          | 17.50 | Excellent   |
+|       2 | Sara         | 14.25 | Bien        |
+|       3 | Khalid       | 11.00 | Passable    |
+|       4 | Mouna        |  8.75 | Insuffisant |
+|       5 | Youssef      | 19.00 | Excellent   |
+|       6 | Imane        |  9.99 | Insuffisant |
+|       7 | Omar         | 16.00 | Excellent   |
++---------+--------------+-------+-------------+
+7 rows in set (0.06 sec)
+
+--------------
+SELECT '=== A4 Synthese par mention ===' AS etape
+--------------
+
++---------------------------------+
+| etape                           |
++---------------------------------+
+| === A4 Synthese par mention === |
++---------------------------------+
+1 row in set (0.06 sec)
+
+--------------
+SELECT mention, COUNT(*) AS nb_etudiants, MIN(note) AS note_min, MAX(note) AS note_max
+FROM notes
+GROUP BY mention
+ORDER BY note_min DESC
+--------------
+
++-------------+--------------+----------+----------+
+| mention     | nb_etudiants | note_min | note_max |
++-------------+--------------+----------+----------+
+| Excellent   |            3 |    16.00 |    19.00 |
+| Bien        |            1 |    14.25 |    14.25 |
+| Passable    |            1 |    11.00 |    11.00 |
+| Insuffisant |            2 |     8.75 |     9.99 |
++-------------+--------------+----------+----------+
+4 rows in set (0.06 sec)
+
+--------------
+SELECT '=== FIN ===' AS etape
+--------------
+
++-------------+
+| etape       |
++-------------+
+| === FIN === |
++-------------+
+1 row in set (0.06 sec)
+
+Bye

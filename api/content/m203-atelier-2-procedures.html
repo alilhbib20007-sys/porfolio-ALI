@@ -1,0 +1,274 @@
+<blockquote>
+<p><strong>Exécuté sur Aiven :</strong> MySQL 8.4.11, base <code>atelier2_procedures</code>, <strong>0 erreur</strong>. Fichiers : <a href="/files/m203/ateliers-2-3-4.sql">script SQL complet des ateliers 2, 3 et 4</a> · <a href="/files/m203/ateliers-2-3-4-resultats.txt">résultats bruts d'Aiven</a>.</p>
+</blockquote>
+<p>Une <strong>procédure stockée</strong> est un programme enregistré dans la base : elle regroupe plusieurs instructions SQL qu'on lance avec <code>CALL</code>. Une <strong>fonction stockée</strong> fonctionne pareil, mais <strong>retourne une valeur</strong> et s'utilise dans un <code>SELECT</code>.</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Procédure</th>
+<th>Fonction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Appel</td>
+<td><code>CALL nom(...)</code></td>
+<td><code>SELECT nom(...)</code></td>
+</tr>
+<tr class="even">
+<td>Valeur de retour</td>
+<td>Aucune (mais paramètres <code>OUT</code> / <code>INOUT</code>)</td>
+<td>Une seule, avec <code>RETURN</code></td>
+</tr>
+<tr class="odd">
+<td>Peut renvoyer un tableau de résultats</td>
+<td>Oui</td>
+<td>Non</td>
+</tr>
+</tbody>
+</table>
+<h2 id="deux-adaptations-pour-aiven">Deux adaptations pour Aiven</h2>
+<ul>
+<li><strong><code>DELIMITER //</code></strong> au lieu de <code>DELIMITER /</code>. Le caractère <code>/</code> sert aussi à la division (<code>inscrits / capacite</code> dans l'atelier 3) : le client <code>mysql</code> couperait la procédure en deux.</li>
+<li><strong><code>DETERMINISTIC</code>, <code>NO SQL</code> ou <code>READS SQL DATA</code></strong> sur chaque fonction. Le journal binaire est actif sur Aiven et l'utilisateur ne peut pas modifier <code>log_bin_trust_function_creators</code> : sans ces mots-clés, MySQL refuse la fonction (erreur 1418).</li>
+</ul>
+<h2 id="table-stagiaires-et-premiers-exemples">Table stagiaires et premiers exemples</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> stagiaires (</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">id</span> <span class="dt">INT</span> AUTO_INCREMENT <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    nom <span class="dt">VARCHAR</span>(<span class="dv">100</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    ville <span class="dt">VARCHAR</span>(<span class="dv">100</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> stagiaires (nom, ville) <span class="kw">VALUES</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>(<span class="st">&#39;Ali&#39;</span>,<span class="st">&#39;Casablanca&#39;</span>), (<span class="st">&#39;Sara&#39;</span>,<span class="st">&#39;Rabat&#39;</span>), (<span class="st">&#39;Khalid&#39;</span>,<span class="st">&#39;Casablanca&#39;</span>),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>(<span class="st">&#39;Mouna&#39;</span>,<span class="st">&#39;Marrakech&#39;</span>), (<span class="st">&#39;Youssef&#39;</span>,<span class="st">&#39;Rabat&#39;</span>);</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>DELIMITER <span class="op">//</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">PROCEDURE</span> pc1()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> stagiaires;</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">FUNCTION</span> somme(a <span class="dt">INT</span>, b <span class="dt">INT</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>RETURNS <span class="dt">INT</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>DETERMINISTIC <span class="kw">NO</span> SQL</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">DECLARE</span> s <span class="dt">INT</span>;</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SET</span> s <span class="op">=</span> a <span class="op">+</span> b;</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">RETURN</span> s;</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>DELIMITER ;</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">CALL</span> pc1();</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> somme(<span class="dv">1</span>, <span class="dv">2</span>);</span></code></pre></div>
+<p><code>CALL pc1()</code> affiche les 5 stagiaires, <code>somme(1, 2)</code> renvoie <strong>3</strong>.</p>
+<p><img loading="lazy" src="/images/m203/a2-01-base-pc1-somme.png" alt="Table stagiaires, pc1() et somme() sur Aiven" /></p>
+<h2 id="procedures-et-fonction-sur-les-stagiaires">Procédures et fonction sur les stagiaires</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>DELIMITER <span class="op">//</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">PROCEDURE</span> afficher_stagiaires_par_ville(<span class="kw">IN</span> ville_param <span class="dt">VARCHAR</span>(<span class="dv">100</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> stagiaires <span class="kw">WHERE</span> ville <span class="op">=</span> ville_param;</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">PROCEDURE</span> compter_stagiaires()</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">DECLARE</span> total <span class="dt">INT</span>;</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">INTO</span> total <span class="kw">FROM</span> stagiaires;</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> total <span class="kw">AS</span> <span class="st">&#39;Nombre de stagiaires&#39;</span>;</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">FUNCTION</span> nombre_stagiaires_par_ville(ville_param <span class="dt">VARCHAR</span>(<span class="dv">100</span>))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>RETURNS <span class="dt">INT</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">READS</span> SQL <span class="kw">DATA</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">DECLARE</span> total <span class="dt">INT</span>;</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">INTO</span> total <span class="kw">FROM</span> stagiaires <span class="kw">WHERE</span> ville <span class="op">=</span> ville_param;</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">RETURN</span> total;</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>DELIMITER ;</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">CALL</span> afficher_stagiaires_par_ville(<span class="st">&#39;Casablanca&#39;</span>);   <span class="co">-- Ali, Khalid</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="kw">CALL</span> compter_stagiaires();                          <span class="co">-- 5</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> nombre_stagiaires_par_ville(<span class="st">&#39;Rabat&#39;</span>);        <span class="co">-- 2</span></span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th>Appel</th>
+<th>Résultat sur Aiven</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>afficher_stagiaires_par_ville('Casablanca')</code></td>
+<td>Ali, Khalid</td>
+</tr>
+<tr class="even">
+<td><code>compter_stagiaires()</code></td>
+<td>5 stagiaires</td>
+</tr>
+<tr class="odd">
+<td><code>nombre_stagiaires_par_ville('Rabat')</code></td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>La liste des routines (équivalent de <code>SHOW PROCEDURE STATUS</code> / <code>SHOW FUNCTION STATUS</code>, lue dans <code>information_schema.ROUTINES</code>) affiche 3 procédures et 2 fonctions.</p>
+<p><img loading="lazy" src="/images/m203/a2-02-procedures-fonction.png" alt="Procédures, fonction et liste des routines" /></p>
+<h2 id="structures-de-controle">Structures de contrôle</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Structure</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>IF … ELSEIF … ELSE … END IF</code></td>
+<td>Exécuter selon une condition</td>
+</tr>
+<tr class="even">
+<td><code>CASE … WHEN … END CASE</code></td>
+<td>Choisir parmi plusieurs valeurs</td>
+</tr>
+<tr class="odd">
+<td><code>WHILE … DO … END WHILE</code></td>
+<td>Répéter <strong>tant que</strong> la condition est vraie (0 fois possible)</td>
+</tr>
+<tr class="even">
+<td><code>REPEAT … UNTIL … END REPEAT</code></td>
+<td>Répéter <strong>jusqu'à ce que</strong> la condition soit vraie (au moins 1 fois)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exemple-pratique-facturation-de-leau">Exemple pratique : facturation de l'eau</h2>
+<p>Barème : 0 à 10 m³ à <strong>1 €</strong>, 11 à 30 m³ à <strong>1,5 €</strong>, au-delà à <strong>2 €</strong> par m³.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> facture (</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    id_facture <span class="dt">INT</span> AUTO_INCREMENT <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    nom_client <span class="dt">VARCHAR</span>(<span class="dv">255</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    qte_eau <span class="dt">INT</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>DELIMITER <span class="op">//</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">PROCEDURE</span> inserer_factures()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">DECLARE</span> compteur <span class="dt">INT</span> <span class="kw">DEFAULT</span> <span class="dv">1</span>;</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">WHILE</span> compteur <span class="op">&lt;=</span> <span class="dv">100</span> DO</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">INSERT</span> <span class="kw">INTO</span> facture (nom_client, qte_eau)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">VALUES</span> (<span class="fu">CONCAT</span>(<span class="st">&#39;Client&#39;</span>, compteur), compteur);</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">SET</span> compteur <span class="op">=</span> compteur <span class="op">+</span> <span class="dv">1</span>;</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">END</span> <span class="cf">WHILE</span>;</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">FUNCTION</span> calculer_montant(qte <span class="dt">INT</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>RETURNS <span class="dt">DECIMAL</span>(<span class="dv">10</span>,<span class="dv">2</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>DETERMINISTIC <span class="kw">NO</span> SQL</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">DECLARE</span> montant <span class="dt">DECIMAL</span>(<span class="dv">10</span>,<span class="dv">2</span>);</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">IF</span> qte <span class="op">&lt;=</span> <span class="dv">10</span> <span class="cf">THEN</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        <span class="kw">SET</span> montant <span class="op">=</span> qte <span class="op">*</span> <span class="dv">1</span>;</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    ELSEIF qte <span class="op">&lt;=</span> <span class="dv">30</span> <span class="cf">THEN</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">SET</span> montant <span class="op">=</span> (<span class="dv">10</span> <span class="op">*</span> <span class="dv">1</span>) <span class="op">+</span> (qte <span class="op">-</span> <span class="dv">10</span>) <span class="op">*</span> <span class="fl">1.5</span>;</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">ELSE</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="kw">SET</span> montant <span class="op">=</span> (<span class="dv">10</span> <span class="op">*</span> <span class="dv">1</span>) <span class="op">+</span> (<span class="dv">20</span> <span class="op">*</span> <span class="fl">1.5</span>) <span class="op">+</span> (qte <span class="op">-</span> <span class="dv">30</span>) <span class="op">*</span> <span class="dv">2</span>;</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">END</span> <span class="cf">IF</span>;</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">RETURN</span> montant;</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>DELIMITER ;</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="kw">CALL</span> inserer_factures();</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> id_facture, nom_client, qte_eau, calculer_montant(qte_eau) <span class="kw">AS</span> montant_a_payer</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> facture;</span></code></pre></div>
+<p>La boucle <code>WHILE</code> a inséré <strong>100 factures</strong> (de 1 à 100 m³). Vérification aux limites des tranches :</p>
+<table>
+<thead>
+<tr class="header">
+<th>m³</th>
+<th>10</th>
+<th>11</th>
+<th>30</th>
+<th>31</th>
+<th>100</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Montant</td>
+<td>10,00</td>
+<td>11,50</td>
+<td>40,00</td>
+<td>42,00</td>
+<td>180,00</td>
+</tr>
+</tbody>
+</table>
+<p>Total des 100 factures : <strong>8 340,00 €</strong>.</p>
+<p><img loading="lazy" src="/images/m203/a2-03-facturation-eau.png" alt="WHILE et calculer_montant() sur Aiven" /></p>
+<h2 id="parametres-in-out-et-inout">Paramètres IN, OUT et INOUT</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>DELIMITER <span class="op">//</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- IN : valeur d&#39;entrée</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">PROCEDURE</span> supprimer_stagiaire(<span class="kw">IN</span> p_id <span class="dt">INT</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">DELETE</span> <span class="kw">FROM</span> stagiaires <span class="kw">WHERE</span> <span class="kw">id</span> <span class="op">=</span> p_id;</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- OUT : valeur de sortie</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">PROCEDURE</span> compter_stagiaires_out(<span class="kw">OUT</span> total <span class="dt">INT</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">INTO</span> total <span class="kw">FROM</span> stagiaires;</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">-- INOUT : entrée puis sortie</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">PROCEDURE</span> augmenter_stock(INOUT qte <span class="dt">INT</span>, <span class="kw">IN</span> p_id <span class="dt">INT</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">UPDATE</span> produits <span class="kw">SET</span> stock <span class="op">=</span> stock <span class="op">+</span> qte <span class="kw">WHERE</span> <span class="kw">id</span> <span class="op">=</span> p_id;</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> stock <span class="kw">INTO</span> qte <span class="kw">FROM</span> produits <span class="kw">WHERE</span> <span class="kw">id</span> <span class="op">=</span> p_id;</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span> <span class="op">//</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>DELIMITER ;</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="kw">CALL</span> supprimer_stagiaire(<span class="dv">5</span>);           <span class="co">-- Youssef supprimé</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="kw">CALL</span> compter_stagiaires_out(@nb);</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> @nb <span class="kw">AS</span> total_stagiaires;        <span class="co">-- 4</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span> @ajout <span class="op">=</span> <span class="dv">10</span>;</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="kw">CALL</span> augmenter_stock(@ajout, <span class="dv">1</span>);</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> @ajout <span class="kw">AS</span> nouveau_stock;        <span class="co">-- 15 + 10 = 25</span></span></code></pre></div>
+<p>Pour <code>augmenter_stock</code>, j'ai créé une petite table <code>produits (id, nom, stock)</code> avec Clavier (15) et Souris (40). <code>@ajout</code> entre avec <strong>10</strong> et ressort avec le nouveau stock, <strong>25</strong>.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Direction</th>
+<th>Exemple</th>
+<th>Résultat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>IN</code></td>
+<td>Entrée</td>
+<td>id à supprimer</td>
+<td>Youssef supprimé, il reste 4 stagiaires</td>
+</tr>
+<tr class="even">
+<td><code>OUT</code></td>
+<td>Sortie</td>
+<td>nombre total</td>
+<td><code>@nb = 4</code></td>
+</tr>
+<tr class="odd">
+<td><code>INOUT</code></td>
+<td>Entrée puis sortie</td>
+<td>quantité ajoutée</td>
+<td><code>@ajout</code> passe de 10 à 25</td>
+</tr>
+</tbody>
+</table>
+<p><img loading="lazy" src="/images/m203/a2-04-in-out-inout.png" alt="IN, OUT et INOUT sur Aiven" /></p>
+<h2 id="suppression-des-procedures-et-fonctions">Suppression des procédures et fonctions</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">DROP</span> <span class="kw">PROCEDURE</span> <span class="cf">IF</span> <span class="kw">EXISTS</span> afficher_stagiaires_par_ville;</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">DROP</span> <span class="kw">PROCEDURE</span> <span class="cf">IF</span> <span class="kw">EXISTS</span> compter_stagiaires;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">DROP</span> <span class="kw">FUNCTION</span> <span class="cf">IF</span> <span class="kw">EXISTS</span> nombre_stagiaires_par_ville;</span></code></pre></div>
+<p>Après suppression, il reste 7 routines (<code>calculer_montant</code>, <code>somme</code>, <code>augmenter_stock</code>, <code>compter_stagiaires_out</code>, <code>inserer_factures</code>, <code>pc1</code>, <code>supprimer_stagiaire</code>). <code>IF EXISTS</code> évite une erreur si la routine n'existe pas.</p>
+<p><img loading="lazy" src="/images/m203/a2-05-suppression.png" alt="DROP PROCEDURE et DROP FUNCTION" /></p>

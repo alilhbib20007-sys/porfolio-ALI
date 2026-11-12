@@ -112,6 +112,29 @@ return [
                     ['titre' => 'Résultats Aiven', 'liens' => [['texte' => 'Voir les résultats', 'url' => '/files/m203/atelier1-resultats.txt']]],
                 ],
             ],
+            [
+                'badge'  => 'Atelier 2',
+                'titre'  => 'Procédures et fonctions stockées',
+                'cartes' => [
+                    ['titre' => 'Séance atelier 2', 'liens' => [['texte' => 'Voir exercice', 'page' => 'm203-atelier-2-procedures']]],
+                ],
+            ],
+            [
+                'badge'  => 'Atelier 3',
+                'titre'  => 'Centre de formation TechLearn : IN, OUT, INOUT et défis',
+                'cartes' => [
+                    ['titre' => 'Séance atelier 3', 'liens' => [['texte' => 'Voir le rapport', 'page' => 'm203-atelier-3-techlearn']]],
+                ],
+            ],
+            [
+                'badge'  => 'Atelier 4',
+                'titre'  => 'Les curseurs en MySQL',
+                'cartes' => [
+                    ['titre' => 'Séance atelier 4', 'liens' => [['texte' => 'Voir exercice', 'page' => 'm203-atelier-4-curseurs']]],
+                    ['titre' => 'Script SQL', 'liens' => [['texte' => 'Ateliers 2, 3, 4', 'url' => '/files/m203/ateliers-2-3-4.sql']]],
+                    ['titre' => 'Résultats Aiven', 'liens' => [['texte' => 'Ateliers 2, 3, 4', 'url' => '/files/m203/ateliers-2-3-4-resultats.txt']]],
+                ],
+            ],
         ],
     ],
 ];

@@ -83,4 +83,19 @@ return [
         'images'      => ['/images/m203/m3-11-aiven-service.jpg', '/images/m203/m3-10-aiven-databases.jpg'],
         'tags'        => ['MySQL', 'Aiven', 'Jointures', 'GROUP BY', 'Index', 'Vues', 'DCL'],
     ],
+    'm203-atelier-2-procedures' => [
+        'titre'       => 'Atelier 2 - Procédures et fonctions stockées en MySQL',
+        'description' => "Procédures et fonctions stockées exécutées sur Aiven : gestion des stagiaires, facturation de l'eau avec une boucle WHILE et une fonction à tranches, paramètres IN, OUT et INOUT.",
+        'tags'        => ['MySQL', 'Aiven', 'Procédures', 'Fonctions', 'WHILE', 'IN / OUT / INOUT'],
+    ],
+    'm203-atelier-3-techlearn' => [
+        'titre'       => 'Atelier 3 - Centre de formation TechLearn (procédures et fonctions)',
+        'description' => "Base techlearn_db sur Aiven : procédures IN, OUT et INOUT, taux d'occupation, génération de sessions en boucle et défis finaux (sessions_formateur, supprimer_sessions_vides, valider_inscription).",
+        'tags'        => ['MySQL', 'Aiven', 'Procédures', 'Fonctions', 'IF', 'WHILE', 'Rapport'],
+    ],
+    'm203-atelier-4-curseurs' => [
+        'titre'       => 'Atelier 4 - Les curseurs en MySQL',
+        'description' => "Curseurs exécutés sur Aiven : lecture ligne par ligne, calcul des factures d'eau et attribution automatique d'une mention à chaque étudiant (Excellent, Bien, Passable, Insuffisant).",
+        'tags'        => ['MySQL', 'Aiven', 'Curseurs', 'FETCH', 'HANDLER', 'LOOP'],
+    ],
 ];
